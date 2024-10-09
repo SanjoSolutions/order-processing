@@ -1,8 +1,26 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { FormEventHandler, useCallback, useState } from 'react'
 
-const services = ['Auto waschen', 'Motoröl wechseln']
+interface Service {
+  name: string
+  duration: number // in hours
+}
+
+const services = [
+  {
+    name: 'Auto waschen',
+    duration: 0.5,
+  },
+  {
+    name: 'Motoröl wechseln',
+    duration: 0.5,
+  },
+  {
+    name: 'Scheibenwischerblätter wechseln',
+    duration: 0.25,
+  },
+]
 
 interface TimeSlot {
   from: Date
@@ -10,7 +28,7 @@ interface TimeSlot {
 }
 
 interface Booking {
-  what: string
+  what: Service[]
   when: TimeSlot
 }
 
@@ -71,31 +89,61 @@ function isFromAndToOnSameDay(timeSlot: TimeSlot) {
   )
 }
 
+function formatServices(services: Service[]): string {
+  if (services.length === 1) {
+    return `Der Service ${services[0].name} wurde`
+  } else if (services.length >= 2) {
+    return `Die Services ${formatAsList(
+      services.map(service => service.name)
+    )} wurden`
+  } else {
+    return ''
+  }
+}
+
+function formatAsList(elements: string[]): string {
+  if (elements.length === 1) {
+    return elements[0]
+  } else if (elements.length >= 2) {
+    return `${elements.slice(0, -1).join(', ')} und ${
+      elements[elements.length - 1]
+    }`
+  } else {
+    return ''
+  }
+}
+
 export default function () {
+  const [what, setWhat] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [bookingWasSuccessful, setBookingWasSuccessful] = useState<
     boolean | null
   >(null)
   const [booking, setBooking] = useState<Booking | null>(null)
 
-  const onSubmit = useCallback(function onSubmit(event) {
-    event.preventDefault()
-    setIsSubmitting(true)
-    const formData = new FormData(event.target)
-    const whenIndex = formData.get('when')
-    const whatIndex = formData.get('what')
-    if (whatIndex !== null && whenIndex !== null) {
-      // TODO: Connect with backend
-      setTimeout(() => {
-        setBooking({
-          what: services[parseInt(whatIndex.toString(), 10)],
-          when: freeTimes[parseInt(whenIndex.toString(), 10)],
-        })
-        setBookingWasSuccessful(true)
-        setIsSubmitting(false)
-      }, 1000)
-    }
-  }, [])
+  const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
+    function onSubmit(event) {
+      event.preventDefault()
+      setIsSubmitting(true)
+      const formData = new FormData(event.target as HTMLFormElement)
+      const whatIndexes = formData.getAll('what')
+      const whenIndex = formData.get('when')
+      if (whatIndexes.length >= 1 && whenIndex !== null) {
+        // TODO: Connect with backend
+        setTimeout(() => {
+          setBooking({
+            what: whatIndexes.map(
+              whatIndex => services[parseInt(whatIndex.toString(), 10)]
+            ),
+            when: freeTimes[parseInt(whenIndex.toString(), 10)],
+          })
+          setBookingWasSuccessful(true)
+          setIsSubmitting(false)
+        }, 200)
+      }
+    },
+    []
+  )
 
   return (
     <div className='container mt-3'>
@@ -103,7 +151,7 @@ export default function () {
         <div className='col'>
           {booking && bookingWasSuccessful && (
             <div className='alert alert-success' role='alert'>
-              Der Service {booking.what} wurde für den{' '}
+              {formatServices(booking.what)} für den{' '}
               {formatTimeSlotForBookingConfirmation(booking.when)} gebucht.
             </div>
           )}
@@ -127,11 +175,19 @@ export default function () {
                   className='form-select'
                   required
                   disabled={isSubmitting}
+                  multiple
+                  value={what}
+                  onChange={event => {
+                    setWhat(
+                      Array.from(event.target.selectedOptions).map(
+                        option => option.value
+                      )
+                    )
+                  }}
                 >
-                  <option value='' disabled selected></option>
                   {services.map((service, index) => (
                     <option key={index} value={index}>
-                      {service}
+                      {service.name}
                     </option>
                   ))}
                 </select>
