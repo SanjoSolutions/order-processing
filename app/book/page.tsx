@@ -570,7 +570,7 @@ export default function () {
         }, 200)
       }
     },
-    []
+    [timeSlots]
   )
 
   return (
