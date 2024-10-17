@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@sanjo/array": "^1.5.1",
     "bootstrap": "^5.3.3",
     "lodash-es": "^4.17.21",
     "next": "14.2.15",

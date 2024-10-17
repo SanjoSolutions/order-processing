@@ -1,10 +1,10 @@
 'use client'
 
 import { FormEventHandler, useCallback, useEffect, useState } from 'react'
-import { last, maxBy, minBy, sum } from 'lodash-es'
+import { maxBy, minBy } from 'lodash-es'
 import { wait } from '../wait'
-import { combinationsAnyLength } from '@sanjo/array'
 import { without } from '../without'
+import { generateCombinations } from '../combinations/combinations'
 
 const planningTimeStep = 0.5 // hours
 
@@ -63,15 +63,15 @@ const openingHours: OpeningHours = [
 const services = [
   {
     name: 'Auto waschen',
-    duration: 0.5,
+    duration: convertHoursToMilliseconds(0.5),
   },
   {
     name: 'Motoröl wechseln',
-    duration: 0.5,
+    duration: convertHoursToMilliseconds(0.5),
   },
   {
     name: 'Scheibenwischerblätter wechseln',
-    duration: 0.25,
+    duration: convertHoursToMilliseconds(0.25),
   },
 ]
 
@@ -278,7 +278,7 @@ function determineFreeTimeSpans(
       currentStartTime >= blockedTimeSpanBefore.from &&
       currentStartTime < blockedTimeSpanBefore.to
     if (isCurrentStartTimeInBlockedTimeSpan) {
-      currentStartTime = blockedTimeSpanAfter.from
+      currentStartTime = blockedTimeSpanBefore.to
     }
     if (blockedTimeSpanAfter) {
       const freeTimeSpan = {
@@ -303,21 +303,25 @@ function calculateTimeSpanLength(timeSpan: TimeSpan): number {
   return timeSpan.to.getTime() - timeSpan.from.getTime()
 }
 
-function generateCombinationsWithAMaximumDuration(
+function* generateCombinationsWithAMaximumDuration(
   services: Service[],
   maximumDuration: number
-): Service[][] {
-  return combinationsAnyLength(services)
-    .slice(1) // Remove []
-    .filter(
-      services => calculateTotalServicesDuration(services) <= maximumDuration
-    )
+): Generator<Set<Service>> {
+  for (const servicesCombination of generateCombinations(services)) {
+    if (
+      calculateTotalServicesDuration(servicesCombination) <= maximumDuration
+    ) {
+      yield servicesCombination
+    }
+  }
 }
 
-function calculateTotalServicesDuration(services: Service[]): number {
-  return sum(
-    services.map(service => convertHoursToMilliseconds(service.duration))
-  )
+function calculateTotalServicesDuration(services: Set<Service>): number {
+  let totalDuration = 0
+  for (const service of services) {
+    totalDuration += service.duration
+  }
+  return totalDuration
 }
 
 function convertHoursToMilliseconds(hours: number): number {
@@ -425,60 +429,54 @@ function continuePlanning(
     const freeTimeSpan = freeTimeSpans[freeTimeSpanIndex]
     const sections = generateSectionsFromTimeSpan(freeTimeSpan)
     for (const section of sections) {
-      const possibleServiceCombinationsThatCanBeDoneInTheFreeTimeSpan =
-        generateCombinationsWithAMaximumDuration(
-          remainingServices,
-          calculateTimeSpanLength(section)
-        )
-      const extraPlans =
-        possibleServiceCombinationsThatCanBeDoneInTheFreeTimeSpan.map(
-          services =>
-            plan.concat([
-              {
-                timeSpan: {
-                  from: section.from,
-                  to: new Date(
-                    section.from.getTime() +
-                      calculateTotalServicesDuration(services)
-                  ),
-                },
-                services,
-              },
-            ])
-        )
-      const extraPlansThatCompleteAllServices = extraPlans.filter(
-        plan =>
-          without(remainingServices, plan[plan.length - 1].services).length ===
-          0
-      )
-      if (extraPlansThatCompleteAllServices.length >= 1) {
-        plans.push(
-          minBy(extraPlansThatCompleteAllServices, plan =>
-            last(plan)!.timeSpan.to.getTime()
-          )!
-        )
-      } else {
-        let plans2: Plan[] = []
+      let extraPlans: Plan[] = []
+
+      let hasFoundAPlan = false
+
+      for (const services of generateCombinationsWithAMaximumDuration(
+        remainingServices,
+        calculateTimeSpanLength(section)
+      )) {
+        const plan2 = plan.concat([
+          {
+            timeSpan: {
+              from: section.from,
+              to: new Date(
+                section.from.getTime() +
+                  calculateTotalServicesDuration(services)
+              ),
+            },
+            services: Array.from(services),
+          },
+        ])
+        if (services.size === remainingServices.length) {
+          // All remaining services can be done
+          plans.push(plan2)
+          hasFoundAPlan = true
+          break
+        } else {
+          extraPlans.push(plan2)
+        }
+      }
+
+      if (!hasFoundAPlan) {
         for (const plan of extraPlans) {
           const remainingServices2 = without(
             remainingServices,
             plan[plan.length - 1].services
           )
-          if (remainingServices2.length >= 1) {
-            if (freeTimeSpanIndex + 1 < freeTimeSpans.length) {
-              plans2 = plans2.concat(
-                continuePlanning(
-                  freeTimeSpans,
-                  plan,
-                  remainingServices2,
-                  freeTimeSpanIndex + 1
-                )
-              )
+          if (freeTimeSpanIndex + 1 < freeTimeSpans.length) {
+            const plans2 = continuePlanning(
+              freeTimeSpans,
+              plan,
+              remainingServices2,
+              freeTimeSpanIndex + 1
+            )
+            if (plans2.length >= 1) {
+              plans.push(plans2[0])
+              break
             }
           }
-        }
-        if (plans2.length >= 1) {
-          plans.push(minBy(plans2, plan => last(plan)!.timeSpan.to.getTime())!)
         }
       }
     }
@@ -518,7 +516,7 @@ function findNextStartTimeThatFitsSections(time: Date): Date {
 export default function () {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
-  const [what, setWhat] = useState<string[]>([])
+  const [what, setWhat] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [bookingWasSuccessful, setBookingWasSuccessful] = useState<
     boolean | null
@@ -537,7 +535,7 @@ export default function () {
 
   useEffect(
     function updateTimeSlots() {
-      let selectedServices = what.map(index => services[parseInt(index, 10)])
+      let selectedServices = what.map(index => services[index])
       let plans = findPlans(bookings, selectedServices)
       plans.sort(
         (plan1, plan2) =>
@@ -567,7 +565,7 @@ export default function () {
         // TODO: Connect with backend
         setTimeout(() => {
           setBooking({
-            what: what.map(whatIndex => services[parseInt(whatIndex, 10)]),
+            what: what.map(whatIndex => services[whatIndex]),
             when: timeSlots[parseInt(whenIndex.toString(), 10)],
           })
           setBookingWasSuccessful(true)
@@ -633,9 +631,9 @@ export default function () {
                   <p className='mb-2'>Ausgewählte Dienstleistungen</p>
 
                   <ul className='list-group'>
-                    {what.map(serviceIndex => (
-                      <li className='list-group-item'>
-                        {services[parseInt(serviceIndex, 10)].name}
+                    {what.map((serviceIndex, index) => (
+                      <li key={index} className='list-group-item'>
+                        {services[serviceIndex].name}
                       </li>
                     ))}
                   </ul>
