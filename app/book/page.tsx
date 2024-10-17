@@ -386,6 +386,7 @@ function findPlans(bookings: Booking[], services: Service[]): Plan[] {
     numberOfWeeks
   )
 
+  services = services.map(service => ({ ...service }))
   const plans = continuePlanning(freeTimeSpans, [], services, 0)
 
   return plans
@@ -415,7 +416,6 @@ function continuePlanning(
   remainingServices: Service[],
   nextFreeTimeSpanIndex: number
 ): Plan[] {
-  // TODO: Booking services multiple times
   let plans: Plan[] = []
   for (
     let freeTimeSpanIndex = nextFreeTimeSpanIndex;
@@ -549,20 +549,25 @@ export default function () {
     [bookings, what]
   )
 
+  const onAddService = useCallback(
+    function onAddService(event) {
+      const select = event.target.parentElement.querySelector('select')
+      setWhat([...what, select.value])
+    },
+    [what]
+  )
+
   const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
     function onSubmit(event) {
       event.preventDefault()
       setIsSubmitting(true)
       const formData = new FormData(event.target as HTMLFormElement)
-      const whatIndexes = formData.getAll('what')
       const whenIndex = formData.get('when')
-      if (whatIndexes.length >= 1 && whenIndex !== null) {
+      if (what.length >= 1 && whenIndex !== null) {
         // TODO: Connect with backend
         setTimeout(() => {
           setBooking({
-            what: whatIndexes.map(
-              whatIndex => services[parseInt(whatIndex.toString(), 10)]
-            ),
+            what: what.map(whatIndex => services[parseInt(whatIndex, 10)]),
             when: timeSlots[parseInt(whenIndex.toString(), 10)],
           })
           setBookingWasSuccessful(true)
@@ -570,7 +575,7 @@ export default function () {
         }, 200)
       }
     },
-    [timeSlots]
+    [timeSlots, what]
   )
 
   return (
@@ -597,29 +602,46 @@ export default function () {
                 <label htmlFor='what' className='form-label'>
                   Was?
                 </label>
-                <select
-                  id='what'
-                  name='what'
-                  className='form-select'
-                  required
-                  disabled={isSubmitting}
-                  multiple
-                  value={what}
-                  onChange={event => {
-                    setWhat(
-                      Array.from(event.target.selectedOptions).map(
-                        option => option.value
-                      )
-                    )
-                  }}
-                >
-                  {services.map((service, index) => (
-                    <option key={index} value={index}>
-                      {service.name}
-                    </option>
-                  ))}
-                </select>
+                <div className='input-group'>
+                  <select
+                    id='what'
+                    name='what'
+                    className='form-select'
+                    required
+                    disabled={isSubmitting}
+                    defaultValue={0}
+                  >
+                    {services.map((service, index) => (
+                      <option key={index} value={index}>
+                        {service.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className='btn btn-outline-secondary'
+                    type='button'
+                    id='button-addon2'
+                    onClick={onAddService}
+                  >
+                    Hinzufügen
+                  </button>
+                </div>
               </div>
+
+              {what.length >= 1 && (
+                <div className='mb-3'>
+                  <p className='mb-2'>Ausgewählte Dienstleistungen</p>
+
+                  <ul className='list-group'>
+                    {what.map(serviceIndex => (
+                      <li className='list-group-item'>
+                        {services[parseInt(serviceIndex, 10)].name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className='mb-3'>
                 <label htmlFor='when' className='form-label'>
                   Wann?
