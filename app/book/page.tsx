@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEventHandler, useCallback, useEffect, useState } from 'react'
-import { maxBy, minBy } from 'lodash-es'
+import { last, maxBy, minBy } from 'lodash-es'
 import { wait } from '../wait'
 import { without } from '../without'
 import { generateCombinations } from '../combinations/combinations'
@@ -333,7 +333,7 @@ function findPlans(bookings: Booking[], services: Service[]): Plan[] {
     return []
   }
 
-  const numberOfWeeks = 10
+  const numberOfWeeks = 1
 
   const now = new Date()
 
@@ -341,8 +341,12 @@ function findPlans(bookings: Booking[], services: Service[]): Plan[] {
   // FIXME: Use UTC in opening hours and here so that it works across time zones
   let currentDay = new Date(now)
   currentDay.setHours(0, 0, 0, 0)
-  for (let week = 1; week < numberOfWeeks; week++) {
-    for (let day = now.getDay(); day < 6; day++) {
+  for (let week = 1; week <= numberOfWeeks + 1; week++) {
+    for (
+      let day = week === 1 ? now.getDay() : 0;
+      day <= 6 && (week <= numberOfWeeks || day <= now.getDay());
+      day++
+    ) {
       const openingHoursOnDay = openingHours[day]
 
       if (openingHoursOnDay) {
@@ -391,7 +395,7 @@ function findPlans(bookings: Booking[], services: Service[]): Plan[] {
   )
 
   services = services.map(service => ({ ...service }))
-  const plans = continuePlanning(freeTimeSpans, [], services, 0)
+  const plans = continuePlanning(freeTimeSpans, services)
 
   return plans
 }
@@ -416,72 +420,78 @@ type Plan = PlanStep[]
 
 function continuePlanning(
   freeTimeSpans: TimeSpan[],
-  plan: Plan,
-  remainingServices: Service[],
-  nextFreeTimeSpanIndex: number
+  services: Service[]
 ): Plan[] {
   let plans: Plan[] = []
   for (
-    let freeTimeSpanIndex = nextFreeTimeSpanIndex;
+    let freeTimeSpanIndex = 0;
     freeTimeSpanIndex < freeTimeSpans.length;
     freeTimeSpanIndex++
   ) {
     const freeTimeSpan = freeTimeSpans[freeTimeSpanIndex]
     const sections = generateSectionsFromTimeSpan(freeTimeSpan)
     for (const section of sections) {
-      let extraPlans: Plan[] = []
-
-      let hasFoundAPlan = false
-
-      for (const services of generateCombinationsWithAMaximumDuration(
-        remainingServices,
-        calculateTimeSpanLength(section)
-      )) {
-        const plan2 = plan.concat([
-          {
-            timeSpan: {
-              from: section.from,
-              to: new Date(
-                section.from.getTime() +
-                  calculateTotalServicesDuration(services)
-              ),
-            },
-            services: Array.from(services),
-          },
-        ])
-        if (services.size === remainingServices.length) {
-          // All remaining services can be done
-          plans.push(plan2)
-          hasFoundAPlan = true
-          break
-        } else {
-          extraPlans.push(plan2)
-        }
-      }
-
-      if (!hasFoundAPlan) {
-        for (const plan of extraPlans) {
-          const remainingServices2 = without(
-            remainingServices,
-            plan[plan.length - 1].services
-          )
-          if (freeTimeSpanIndex + 1 < freeTimeSpans.length) {
-            const plans2 = continuePlanning(
-              freeTimeSpans,
-              plan,
-              remainingServices2,
-              freeTimeSpanIndex + 1
-            )
-            if (plans2.length >= 1) {
-              plans.push(plans2[0])
-              break
-            }
-          }
-        }
+      const plan2 = continuePlanning2(
+        freeTimeSpans,
+        [],
+        services,
+        freeTimeSpanIndex,
+        section
+      )
+      if (plan2) {
+        plans.push(plan2)
       }
     }
   }
   return plans
+}
+
+function continuePlanning2(
+  freeTimeSpans: TimeSpan[],
+  plan: Plan,
+  remainingServices: Service[],
+  freeTimeSpanIndex: number,
+  timeSpan: TimeSpan
+): Plan | null {
+  for (const services of generateCombinationsWithAMaximumDuration(
+    remainingServices,
+    calculateTimeSpanLength(timeSpan)
+  )) {
+    const plan2 = plan.concat([
+      {
+        timeSpan: {
+          from: timeSpan.from,
+          to: new Date(
+            timeSpan.from.getTime() + calculateTotalServicesDuration(services)
+          ),
+        },
+        services: Array.from(services),
+      },
+    ])
+    if (services.size === remainingServices.length) {
+      // All remaining services can be done
+      return plan2
+    } else {
+      const remainingServices2 = without(
+        remainingServices,
+        last(plan2)!.services
+      )
+      if (freeTimeSpanIndex + 1 < freeTimeSpans.length) {
+        const plan3 = continuePlanning2(
+          freeTimeSpans,
+          plan2,
+          remainingServices2,
+          freeTimeSpanIndex + 1,
+          freeTimeSpans[freeTimeSpanIndex + 1]
+        )
+        if (plan3) {
+          return plan3
+        }
+      }
+    }
+  }
+
+  return null
 }
 
 function generateSectionsFromTimeSpan(timeSpan: TimeSpan): TimeSpan[] {
