@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig-base-build.json",
+  "compilerOptions": {
+    "rootDir": "./src/",
+    "outDir": "./build/",
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo"
+  },
+  "include": ["./src/**/*"],
+  "references": [
+    {
+      "path": "../comparison"
+    },
+    {
+      "path": "../ensure-entry-in-map"
+    },
+    {
+      "path": "../identity"
+    }
+  ]
+}

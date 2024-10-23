@@ -1,16 +1,16 @@
 import type { APIGatewayProxyHandlerV2 } from 'aws-lambda'
-import { findPlans } from '../../../app/freeSlots/freeSlots'
-import { convertPlansToRealizationTimeSpans } from '../../../app/freeSlots/convertPlansToRealizationTimeSpans'
+import { findPlans, convertPlansToRealizationTimeSpans } from 'scheduling'
 
 export const handler: APIGatewayProxyHandlerV2 = async event => {
   console.log('event', event)
 
   if (event.body) {
-    const { bookings, services, openingHours, planningTimeStep } = JSON.parse(
-      event.body
-    )
+    const { from, to, bookings, services, openingHours, planningTimeStep } =
+      JSON.parse(event.body)
 
     const plans = findPlans(bookings, services, {
+      from,
+      to,
       openingHours,
       planningTimeStep,
     })

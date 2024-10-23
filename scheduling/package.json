@@ -1,0 +1,44 @@
+{
+  "name": "scheduling",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc --build",
+    "build:watch": "tsc --build --watch"
+  },
+  "description": "Scheduling",
+  "keywords": [
+    "scheduling"
+  ],
+  "homepage": "",
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    "types": "./build/index.d.ts",
+    "default": "./build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "",
+    "directory": "scheduling"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.9",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
+    "@jest/globals": "^29.7.0",
+    "@types/lodash-es": "^4.17.12",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "ts-jest-resolver": "^2.0.1",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21"
+  }
+}

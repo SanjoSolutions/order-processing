@@ -2,9 +2,9 @@
 
 import { FormEventHandler, useCallback, useEffect, useState } from 'react'
 import { wait } from '../wait'
-import { Booking, Service, TimeSlot } from './types'
+import { Booking, Service, TimeSlot } from 'scheduling'
 import { services } from './data'
-import { convertPlansToRealizationTimeSpans } from '../freeSlots/convertPlansToRealizationTimeSpans'
+import { convertPlansToRealizationTimeSpans } from 'scheduling'
 
 const worker = new Worker(new URL('./worker', import.meta.url), {
   type: 'module',
@@ -108,7 +108,10 @@ export default function () {
   useEffect(
     function updateTimeSlots() {
       let selectedServices = what.map(index => services[index])
+      const now = new Date()
       worker.postMessage({
+        from: now,
+        to: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
         bookings,
         services: selectedServices,
       })
@@ -219,9 +222,10 @@ export default function () {
                   className='form-select'
                   required
                   disabled={isSubmitting}
+                  defaultValue={0}
                 >
                   {timeSlots.map((timeSlot, index) => (
-                    <option key={index} value={index} selected={index === 0}>
+                    <option key={index} value={index}>
                       {formatTimeSlot(timeSlot)}
                     </option>
                   ))}

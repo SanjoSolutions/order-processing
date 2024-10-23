@@ -1,5 +1,5 @@
 import { convertHoursToMilliseconds } from './convertHoursToMilliseconds'
-import { OpeningHours } from './types'
+import { OpeningHours } from 'scheduling'
 
 export const openingHours: OpeningHours = [
   // Sunday

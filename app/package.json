@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev-cloud": "ampx sandbox",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -15,7 +16,8 @@
     "lodash-es": "^4.17.21",
     "next": "14.2.15",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "scheduling": "file:../scheduling"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.2.1",
