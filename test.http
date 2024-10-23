@@ -1,0 +1,29 @@
+POST https://krf9dfp6e9.execute-api.eu-central-1.amazonaws.com/free-slots
+Content-Type: application/json
+
+{
+  "openingHours": [
+    // Sunday
+    null,
+    // Monday
+    { "from": { "hours": 8, "minutes": 0 }, "to": { "hours": 18, "minutes": 0 } },
+    // Tuesday
+    { "from": { "hours": 8, "minutes": 0 }, "to": { "hours": 18, "minutes": 0 } },
+    // Wednesday
+    { "from": { "hours": 8, "minutes": 0 }, "to": { "hours": 18, "minutes": 0 } },
+    // Thursday
+    { "from": { "hours": 8, "minutes": 0 }, "to": { "hours": 18, "minutes": 0 } },
+    // Friday
+    { "from": { "hours": 8, "minutes": 0 }, "to": { "hours": 18, "minutes": 0 } },
+    // Saturday
+    { "from": { "hours": 8, "minutes": 0 }, "to": { "hours": 14, "minutes": 0 } }
+  ],
+  "planningTimeStep": 0.5,
+  "bookings": [],
+  "services": [
+    {
+      "name": "Bring out trash",
+      "duration": 900000
+    }
+  ]
+}

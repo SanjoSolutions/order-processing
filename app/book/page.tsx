@@ -1,15 +1,10 @@
 'use client'
 
-import {
-  FormEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { FormEventHandler, useCallback, useEffect, useState } from 'react'
 import { wait } from '../wait'
-import { Booking, Plan, Service, TimeSlot, TimeSpan } from './types'
+import { Booking, Service, TimeSlot } from './types'
 import { services } from './data'
+import { convertPlansToRealizationTimeSpans } from '../freeSlots/convertPlansToRealizationTimeSpans'
 
 const worker = new Worker(new URL('./worker', import.meta.url), {
   type: 'module',
@@ -81,17 +76,6 @@ function formatAsList(elements: string[]): string {
   }
 }
 
-function convertPlansToRealisationTimeSpans(plans: Plan[]): TimeSpan[] {
-  return plans.map(convertPlanToRealisationTimeSpan)
-}
-
-function convertPlanToRealisationTimeSpan(plan: Plan): TimeSpan {
-  return {
-    from: plan[0].timeSpan.from,
-    to: plan[plan.length - 1].timeSpan.to,
-  }
-}
-
 export default function () {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
@@ -104,7 +88,7 @@ export default function () {
 
   useEffect(function () {
     worker.onmessage = event => {
-      setTimeSlots(convertPlansToRealisationTimeSpans(event.data))
+      setTimeSlots(convertPlansToRealizationTimeSpans(event.data))
     }
     return () => {
       worker.onmessage = null

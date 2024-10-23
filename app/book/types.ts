@@ -1,6 +1,6 @@
 export interface Service {
   name: string
-  duration: number // in hours
+  duration: number // in ms
 }
 
 export interface TimeSpan {
