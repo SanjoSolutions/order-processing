@@ -1,4 +1,5 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
+import { users } from './users/resource.js'
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -7,24 +8,38 @@ specifies that any user authenticated via an API key can "create", "read",
 "update", and "delete" any "Todo" records.
 =========================================================================*/
 const schema = a.schema({
-  Todo: a
+  Service: a
     .model({
-      content: a.string(),
+      name: a.string().required(),
+      duration: a.float().required(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
-});
+    .authorization(allow => [
+      allow.publicApiKey().to(['read']),
+      allow.group('Admins'),
+    ]),
 
-export type Schema = ClientSchema<typeof schema>;
+  User: a.customType({
+    name: a.string(),
+  }),
+
+  users: a
+    .query()
+    .returns(a.ref('User').array())
+    .authorization(allow => [allow.group('Admins')])
+    .handler(a.handler.function(users)),
+})
+
+export type Schema = ClientSchema<typeof schema>
 
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
+    defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
   },
-});
+})
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a
