@@ -8,6 +8,14 @@ import { convertPlansToRealizationTimeSpans } from 'scheduling'
 import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import moment from 'moment'
+import { generateClient } from 'aws-amplify/data'
+import { type Schema } from '@/amplify/data/resource'
+import { Amplify } from 'aws-amplify'
+import outputs from '../../amplify_outputs.json'
+
+Amplify.configure(outputs)
+
+const client = generateClient<Schema>()
 
 const localizer = momentLocalizer(moment)
 
@@ -133,21 +141,26 @@ export default function () {
   )
 
   const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
-    function onSubmit(event) {
+    async function onSubmit(event) {
       event.preventDefault()
       setIsSubmitting(true)
       const formData = new FormData(event.target as HTMLFormElement)
       const whenIndex = formData.get('when')
       if (what.length >= 1 && whenIndex !== null) {
-        // TODO: Connect with backend
-        setTimeout(() => {
+        const timeSlot = timeSlots[parseInt(whenIndex.toString(), 10)]
+        const { errors } = await client.mutations.createBooking2({
+          during: `[${timeSlot.from.toISOString()}, ${timeSlot.to.toISOString()})`,
+        })
+        if (errors) {
+          setBookingWasSuccessful(false)
+        } else {
           setBooking({
             what: what.map(whatIndex => services[whatIndex]),
             when: timeSlots[parseInt(whenIndex.toString(), 10)],
           })
           setBookingWasSuccessful(true)
-          setIsSubmitting(false)
-        }, 200)
+        }
+        setIsSubmitting(false)
       }
     },
     [timeSlots, what]
@@ -168,9 +181,10 @@ export default function () {
           )}
 
           {bookingWasSuccessful === false && (
+            /* TODO: Differentiate between slot overlapping error and other errors */
             <div className='alert alert-danger mb-3' role='alert'>
-              Es gab einen Fehler beim buchen. Bitte versuchen Sie es
-              telefonisch.
+              Es gab einen Fehler beim buchen. Bitte versuchen Sie einen anderen
+              Termin oder machen Sie einen Termin telefonisch aus.
             </div>
           )}
 
@@ -239,6 +253,7 @@ export default function () {
                   ))}
                 </select>
 
+                {/*
                 <div className='mt-3'>
                   <Calendar
                     localizer={localizer}
@@ -258,6 +273,7 @@ export default function () {
                     onNavigate={setDate}
                   />
                 </div>
+                */}
               </div>
               <div className='text-end'>
                 <button

@@ -1,5 +1,29 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 import { users } from './users/resource.js'
+import { schema as generatedSqlSchema } from './schema.sql'
+
+const sqlSchema = generatedSqlSchema
+  .renameModels(() => [['bookings', 'Booking']])
+  .setAuthorization(models => [
+    models.Booking.authorization(allow => [allow.publicApiKey()]),
+  ])
+  .addToSchema({
+    createBooking2: a
+      .mutation()
+      .arguments({
+        during: a.string().required(),
+      })
+      .returns(a.json().array())
+      .handler(
+        a.handler.inlineSql(
+          `
+          INSERT INTO bookings (during)
+          VALUES (:during)
+        `
+        )
+      )
+      .authorization(allow => allow.publicApiKey()),
+  })
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -8,6 +32,11 @@ specifies that any user authenticated via an API key can "create", "read",
 "update", and "delete" any "Todo" records.
 =========================================================================*/
 const schema = a.schema({
+  TimeSpan: a.customType({
+    from: a.datetime().required(),
+    to: a.datetime().required(),
+  }),
+
   Service: a
     .model({
       name: a.string().required(),
@@ -27,12 +56,21 @@ const schema = a.schema({
     .returns(a.ref('User').array())
     .authorization(allow => [allow.group('Admins')])
     .handler(a.handler.function(users)),
+
+  book: a
+    .mutation()
+    .arguments({
+      booking: a.json().required(),
+    })
+    .returns(a.boolean().required()),
 })
 
-export type Schema = ClientSchema<typeof schema>
+const combinedSchema = a.combine([schema, sqlSchema])
+
+export type Schema = ClientSchema<typeof combinedSchema>
 
 export const data = defineData({
-  schema,
+  schema: combinedSchema,
   authorizationModes: {
     defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: {
