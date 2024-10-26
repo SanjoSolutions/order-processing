@@ -107,9 +107,16 @@ export default function () {
 
   useEffect(function requestBookings() {
     async function request() {
-      // TODO: Connect with backend
-      wait(50)
-      setBookings([])
+      const { data, errors } = await client.queries.existingBookings({
+        during: `[${new Date().toISOString()}, ${new Date(
+          new Date().getTime() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString()})`,
+      })
+      if (errors) {
+        console.error(errors)
+      } else if (data) {
+        setBookings(data)
+      }
     }
 
     request()
