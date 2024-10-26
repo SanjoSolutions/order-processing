@@ -5,9 +5,7 @@ import { wait } from '../wait'
 import { Booking, Service, TimeSlot } from 'scheduling'
 import { services } from './data'
 import { convertPlansToRealizationTimeSpans } from 'scheduling'
-import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import moment from 'moment'
 import { generateClient } from 'aws-amplify/data'
 import { type Schema } from '@/amplify/data/resource'
 import { Amplify } from 'aws-amplify'
@@ -16,8 +14,6 @@ import outputs from '../../amplify_outputs.json'
 Amplify.configure(outputs)
 
 const client = generateClient<Schema>()
-
-const localizer = momentLocalizer(moment)
 
 const worker = new Worker(new URL('./worker', import.meta.url), {
   type: 'module',
@@ -175,9 +171,6 @@ export default function () {
     [timeSlots, what]
   )
 
-  const [view, setView] = useState<View>(Views.WEEK)
-  const [date, setDate] = useState<Date>(new Date())
-
   return (
     <div className='container mt-3'>
       <div className='row'>
@@ -261,28 +254,6 @@ export default function () {
                     </option>
                   ))}
                 </select>
-
-                {/*
-                <div className='mt-3'>
-                  <Calendar
-                    localizer={localizer}
-                    events={timeSlots.map(({ from, to }, index) => ({
-                      id: index,
-                      title: 'Free slot',
-                      from,
-                      to,
-                    }))}
-                    startAccessor='from'
-                    endAccessor='to'
-                    style={{ height: 500 }}
-                    showMultiDayTimes
-                    view={view}
-                    onView={setView}
-                    date={date}
-                    onNavigate={setDate}
-                  />
-                </div>
-                */}
               </div>
               <div className='text-end'>
                 <button
