@@ -56,6 +56,8 @@ new rds.DatabaseInstance(databaseStack, 'Database', {
   credentials: rds.Credentials.fromGeneratedSecret('postgres'),
 })
 
+// TODO: Optional proxy to database
+
 const apiStack = backend.createStack('api-stack')
 
 const api = new HttpApi(apiStack, 'API', {

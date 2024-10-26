@@ -97,6 +97,7 @@ export default function () {
   const [bookingWasSuccessful, setBookingWasSuccessful] = useState<
     boolean | null
   >(null)
+  const [error, setError] = useState<number | null>(null)
   const [booking, setBooking] = useState<Booking | null>(null)
 
   useEffect(function () {
@@ -148,17 +149,25 @@ export default function () {
       const whenIndex = formData.get('when')
       if (what.length >= 1 && whenIndex !== null) {
         const timeSlot = timeSlots[parseInt(whenIndex.toString(), 10)]
-        const { errors } = await client.mutations.createBooking2({
+        const { data, errors } = await client.mutations.book({
           during: `[${timeSlot.from.toISOString()}, ${timeSlot.to.toISOString()})`,
         })
         if (errors) {
           setBookingWasSuccessful(false)
+        } else if (data) {
+          const { result, error } = JSON.parse(data as string)
+          if (error) {
+            setBookingWasSuccessful(false)
+            setError(error)
+          } else if (result?.hasBooked) {
+            setBooking({
+              what: what.map(whatIndex => services[whatIndex]),
+              when: timeSlots[parseInt(whenIndex.toString(), 10)],
+            })
+            setBookingWasSuccessful(true)
+          }
         } else {
-          setBooking({
-            what: what.map(whatIndex => services[whatIndex]),
-            when: timeSlots[parseInt(whenIndex.toString(), 10)],
-          })
-          setBookingWasSuccessful(true)
+          setBookingWasSuccessful(false)
         }
         setIsSubmitting(false)
       }
@@ -181,10 +190,10 @@ export default function () {
           )}
 
           {bookingWasSuccessful === false && (
-            /* TODO: Differentiate between slot overlapping error and other errors */
             <div className='alert alert-danger mb-3' role='alert'>
-              Es gab einen Fehler beim buchen. Bitte versuchen Sie einen anderen
-              Termin oder machen Sie einen Termin telefonisch aus.
+              {error === 1
+                ? 'Der Zeitraum, den Sie ausgewählt haben, ist bereits belegt. Bitte wählen Sie einen anderen Zeitraum aus.'
+                : 'Es gab einen Fehler beim buchen. Bitte versuchen Sie es telefonisch.'}
             </div>
           )}
 

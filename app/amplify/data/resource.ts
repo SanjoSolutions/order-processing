@@ -1,5 +1,6 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 import { users } from './users/resource.js'
+import { book } from './book/resource.js'
 import { schema as generatedSqlSchema } from './schema.sql'
 
 const sqlSchema = generatedSqlSchema
@@ -7,23 +8,6 @@ const sqlSchema = generatedSqlSchema
   .setAuthorization(models => [
     models.Booking.authorization(allow => [allow.publicApiKey()]),
   ])
-  .addToSchema({
-    createBooking2: a
-      .mutation()
-      .arguments({
-        during: a.string().required(),
-      })
-      .returns(a.json().array())
-      .handler(
-        a.handler.inlineSql(
-          `
-          INSERT INTO bookings (during)
-          VALUES (:during)
-        `
-        )
-      )
-      .authorization(allow => allow.publicApiKey()),
-  })
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -60,9 +44,11 @@ const schema = a.schema({
   book: a
     .mutation()
     .arguments({
-      booking: a.json().required(),
+      during: a.string().required(),
     })
-    .returns(a.boolean().required()),
+    .returns(a.json().required())
+    .authorization(allow => [allow.publicApiKey()])
+    .handler(a.handler.function(book)),
 })
 
 const combinedSchema = a.combine([schema, sqlSchema])
