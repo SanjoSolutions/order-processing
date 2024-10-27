@@ -18,6 +18,7 @@ const backend = defineBackend({
 
 const databaseStack = backend.createStack('database-stack')
 
+// TODO: Remove NAT gateway.
 const vpc = new ec2.Vpc(databaseStack, 'VPC')
 
 const databaseSecurityGroup = new ec2.SecurityGroup(
