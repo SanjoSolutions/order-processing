@@ -1,8 +1,7 @@
 'use client'
 
 import { FormEventHandler, useCallback, useEffect, useState } from 'react'
-import { wait } from '../wait'
-import { Booking, Service, TimeSlot } from 'scheduling'
+import { Booking, Service, TimeSlot, TimeSpan } from 'scheduling'
 import { services } from './data'
 import { convertPlansToRealizationTimeSpans } from 'scheduling'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -10,6 +9,10 @@ import { generateClient } from 'aws-amplify/data'
 import { type Schema } from '@/amplify/data/resource'
 import { Amplify } from 'aws-amplify'
 import outputs from '../../amplify_outputs.json'
+
+// FIXME: Handle closed days correctly.
+
+// TODO: Support scheduling for a long time (more than a year) in the future.
 
 Amplify.configure(outputs)
 
@@ -85,6 +88,20 @@ function formatAsList(elements: string[]): string {
   }
 }
 
+const tsRangeRegExp = /^[([]"(.+)","(.+)"[)\]]$/
+
+function convertTsRangeToTimeSpan(value: string): TimeSpan {
+  const match = tsRangeRegExp.exec(value)
+  if (match) {
+    return {
+      from: new Date(match[1]),
+      to: new Date(match[2]),
+    }
+  } else {
+    throw new Error('Failed to parse Tsrange.')
+  }
+}
+
 export default function () {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
@@ -107,9 +124,24 @@ export default function () {
 
   useEffect(function requestBookings() {
     async function request() {
-      // TODO: Connect with backend
-      wait(50)
-      setBookings([])
+      const now = new Date()
+      const { data, errors } = await client.queries.existingBookings({
+        during: `[${now.toISOString()}, ${new Date(
+          now.getTime() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString()})`,
+      })
+      debugger
+      if (errors) {
+        console.error(errors)
+      } else if (data) {
+        const { result } = JSON.parse(data as string)
+        const bookings = result.map((item: { during: string }) => ({
+          what: [],
+          when: convertTsRangeToTimeSpan(item.during),
+        }))
+        debugger
+        setBookings(bookings)
+      }
     }
 
     request()

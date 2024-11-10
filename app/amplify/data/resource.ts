@@ -2,6 +2,7 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 import { users } from './users/resource.js'
 import { book } from './book/resource.js'
 import { schema as generatedSqlSchema } from './schema.sql'
+import { existingBookings } from './existingBookings/resource.js'
 
 const sqlSchema = generatedSqlSchema
   .renameModels(() => [['bookings', 'Booking']])
@@ -49,6 +50,15 @@ const schema = a.schema({
     .returns(a.json().required())
     .authorization(allow => [allow.publicApiKey()])
     .handler(a.handler.function(book)),
+
+  existingBookings: a
+    .query()
+    .arguments({
+      during: a.string().required(),
+    })
+    .returns(a.json().required())
+    .authorization(allow => [allow.publicApiKey()])
+    .handler(a.handler.function(existingBookings)),
 })
 
 const combinedSchema = a.combine([schema, sqlSchema])

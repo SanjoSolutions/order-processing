@@ -18,7 +18,11 @@ const backend = defineBackend({
 
 const databaseStack = backend.createStack('database-stack')
 
-const vpc = new ec2.Vpc(databaseStack, 'VPC')
+// TODO: Remove endpoint?
+const vpc = new ec2.Vpc(databaseStack, 'VPC', {
+  natGateways: 0,
+  vpnGateway: false,
+})
 
 const databaseSecurityGroup = new ec2.SecurityGroup(
   databaseStack,
