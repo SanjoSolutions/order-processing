@@ -305,7 +305,7 @@ export function Form({
                   name="when"
                   className="form-select"
                   required
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || what.length === 0}
                   defaultValue={0}
                 >
                   {timeSlots.map((timeSlot, index) => (
@@ -319,7 +319,7 @@ export function Form({
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || what.length === 0}
                 >
                   Buchen
                 </button>
