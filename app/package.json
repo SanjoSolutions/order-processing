@@ -11,7 +11,6 @@
     "generate-types": "supabase gen types --local typescript > src/database.types.ts"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.13",
     "@aws-sdk/client-cognito-identity-provider": "^3.678.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-checkbox": "^1.1.2",
@@ -26,7 +25,6 @@
     "@supabase/supabase-js": "^2.46.1",
     "@usebasejump/shared": "^0.0.3",
     "autoprefixer": "10.4.17",
-    "aws-amplify": "^6.4.0",
     "bootstrap": "^5.3.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -53,8 +51,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "^1.2.1",
-    "@aws-amplify/backend-cli": "^1.2.6",
     "@chromatic-com/storybook": "3.2.2",
     "@playwright/test": "^1.48.2",
     "@storybook/addon-essentials": "8.4.2",
@@ -90,11 +86,5 @@
     "typescript-eslint": "^8.9.0",
     "vitest": "^2.1.4",
     "vitest-tsconfig-paths": "^3.4.1"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "npm:types-react@19.0.0-rc.1",
-      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
-    }
   }
 }
