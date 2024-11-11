@@ -1,22 +1,25 @@
 version: 1
 applications:
   - frontend:
+      buildPath: "/"
       phases:
         preBuild:
           commands:
             - corepack enable
-            - cd .. && pnpm install --frozen-lockfile && cd app
+            - corepack prepare pnpm@latest-9 --activate
+            - pnpm config set store-dir ~/.pnpm-store
+            - pnpm install --frozen-lockfile
         build:
           commands:
-            - cd ../scheduling && pnpm run build && cd ../app
-            - pnpm run build
+            - pnpm run --filter scheduling build
+            - pnpm run --filter app build
       artifacts:
-        baseDirectory: .next
+        baseDirectory: app/.next
         files:
           - "**/*"
       cache:
         paths:
-          - .next/cache/**/*
+          - app/.next/cache/**/*
           - node_modules/**/*
-      buildPath: app
+          - ~/.pnpm-store/**/*
     appRoot: app
