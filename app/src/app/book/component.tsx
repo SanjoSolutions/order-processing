@@ -235,97 +235,99 @@ export function Form({
 
   return (
     <div className="container mt-3">
-      {booking && bookingWasSuccessful && (
-        <div className="alert alert-success" role="alert">
-          {formatServices(booking.what)} für den{" "}
-          {formatTimeSlotForBookingConfirmation(booking.when)} gebucht.
-        </div>
-      )}
-
-      {bookingWasSuccessful === false && (
-        <div className="alert alert-danger mb-3" role="alert">
-          {error === Error.DuringOverlaps
-            ? "Der Zeitraum, den Sie ausgewählt haben, ist bereits belegt. Bitte wählen Sie einen anderen Zeitraum aus."
-            : "Es gab einen Fehler beim buchen. Bitte versuchen Sie es telefonisch."}
-        </div>
-      )}
-
-      {!booking && (
-        <form onSubmit={onSubmit}>
-          <div className="mb-3">
-            <label htmlFor="what" className="form-label">
-              Was?
-            </label>
-            <div className="input-group">
-              <select
-                id="what"
-                name="what"
-                className="form-select"
-                required
-                disabled={isSubmitting}
-                defaultValue={0}
-              >
-                {services.map((service, index) => (
-                  <option key={index} value={index}>
-                    {service.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                className="btn btn-outline-secondary"
-                type="button"
-                id="button-addon2"
-                onClick={onAddService}
-              >
-                Hinzufügen
-              </button>
-            </div>
-          </div>
-
-          {what.length >= 1 && (
-            <div className="mb-3">
-              <p className="mb-2">Ausgewählte Dienstleistungen</p>
-
-              <ul className="list-group">
-                {what.map((serviceIndex, index) => (
-                  <li key={index} className="list-group-item">
-                    {services[serviceIndex].name}
-                  </li>
-                ))}
-              </ul>
+      <div className="row justify-content-center">
+        <div className="col col-md-6">
+          {booking && bookingWasSuccessful && (
+            <div className="alert alert-success" role="alert">
+              {formatServices(booking.what)} für den{" "}
+              {formatTimeSlotForBookingConfirmation(booking.when)} gebucht.
             </div>
           )}
 
-          <div className="mb-3">
-            <label htmlFor="when" className="form-label">
-              Wann?
-            </label>
-            <select
-              id="when"
-              name="when"
-              className="form-select"
-              required
-              disabled={isSubmitting}
-              defaultValue={0}
-            >
-              {timeSlots.map((timeSlot, index) => (
-                <option key={index} value={index}>
-                  {formatTimeSlot(timeSlot)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="text-end">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isSubmitting}
-            >
-              Buchen
-            </button>
-          </div>
-        </form>
-      )}
+          {bookingWasSuccessful === false && (
+            <div className="alert alert-danger mb-3" role="alert">
+              {error === Error.DuringOverlaps
+                ? "Der Zeitraum, den Sie ausgewählt haben, ist bereits belegt. Bitte wählen Sie einen anderen Zeitraum aus."
+                : "Es gab einen Fehler beim buchen. Bitte versuchen Sie es telefonisch."}
+            </div>
+          )}
+
+          {!booking && (
+            <form onSubmit={onSubmit}>
+              <div className="mb-2">
+                <label htmlFor="what" className="form-label h5">
+                  Was?
+                </label>
+                <div className="input-group">
+                  <select
+                    id="what"
+                    name="what"
+                    className="form-select"
+                    required
+                    disabled={isSubmitting}
+                    defaultValue={0}
+                  >
+                    {services.map((service, index) => (
+                      <option key={index} value={index}>
+                        {service.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    id="button-addon2"
+                    onClick={onAddService}
+                  >
+                    Hinzufügen
+                  </button>
+                </div>
+              </div>
+
+              {what.length >= 1 && (
+                <div>
+                  <p className="mb-2">Ausgewählte Dienstleistungen:</p>
+
+                  <ul>
+                    {what.map((serviceIndex, index) => (
+                      <li key={index}>{services[serviceIndex].name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="mt-3 mb-3">
+                <label htmlFor="when" className="form-label h5">
+                  Wann?
+                </label>
+                <select
+                  id="when"
+                  name="when"
+                  className="form-select"
+                  required
+                  disabled={isSubmitting}
+                  defaultValue={0}
+                >
+                  {timeSlots.map((timeSlot, index) => (
+                    <option key={index} value={index}>
+                      {formatTimeSlot(timeSlot)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="text-end">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                >
+                  Buchen
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
