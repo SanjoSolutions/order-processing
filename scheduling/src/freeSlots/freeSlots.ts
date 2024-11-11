@@ -1,7 +1,7 @@
-import { Booking, OpeningHours, Plan, Service, TimeSpan } from '../types.js'
-import { last, maxBy, minBy } from 'lodash-es'
-import { without } from '../without.js'
-import { generateCombinations } from '../combinations/combinations.js'
+import { last, maxBy, minBy } from "lodash-es"
+import { generateCombinations } from "../combinations/combinations.js"
+import { Booking, OpeningHours, Plan, Service, TimeSpan } from "../types.js"
+import { without } from "../without.js"
 
 export function findPlans(
   bookings: Booking[],
@@ -16,7 +16,7 @@ export function findPlans(
     planningTimeStep: number
     from: Date
     to: Date
-  }
+  },
 ): Plan[] {
   if (services.length === 0) {
     return []
@@ -40,7 +40,7 @@ export function findPlans(
           to: new Date(
             currentDay.getTime() +
               openingHoursOnDay.from.hours * 60 * 60 * 1000 +
-              openingHoursOnDay.from.minutes * 60 * 1000
+              openingHoursOnDay.from.minutes * 60 * 1000,
           ),
         }
         closedTimes.push(beforeOpeningTimeSpan)
@@ -54,26 +54,31 @@ export function findPlans(
           from: new Date(
             currentDay.getTime() +
               openingHoursOnDay.to.hours * 60 * 60 * 1000 +
-              openingHoursOnDay.to.minutes * 60 * 1000
+              openingHoursOnDay.to.minutes * 60 * 1000,
           ),
           to: new Date(currentDay.getTime() + 24 * 60 * 60 * 1000),
         }
         closedTimes.push(afterClosingTimeSpan)
       }
+    } else {
+      closedTimes.push({
+        from: new Date(currentDay),
+        to: new Date(currentDay.getTime() + 24 * 60 * 60 * 1000),
+      })
     }
 
     currentDay = new Date(currentDay.getTime() + 24 * 60 * 60 * 1000)
   }
 
-  const bookedTimes = bookings.map(booking => booking.when)
+  const bookedTimes = bookings.map((booking) => booking.when)
   const blockedTimeSpans = mergeTimeSpans(closedTimes.concat(bookedTimes))
   const freeTimeSpans: TimeSpan[] = determineFreeTimeSpans(
     from,
     to,
-    blockedTimeSpans
+    blockedTimeSpans,
   )
 
-  services = services.map(service => ({ ...service }))
+  services = services.map((service) => ({ ...service }))
   const plans = continuePlanning(freeTimeSpans, services, { planningTimeStep })
 
   return plans
@@ -82,7 +87,7 @@ export function findPlans(
 function continuePlanning(
   freeTimeSpans: TimeSpan[],
   services: Service[],
-  { planningTimeStep }: { planningTimeStep: number }
+  { planningTimeStep }: { planningTimeStep: number },
 ): Plan[] {
   let plans: Plan[] = []
   for (
@@ -100,7 +105,7 @@ function continuePlanning(
         [],
         services,
         freeTimeSpanIndex,
-        section
+        section,
       )
       if (plan2) {
         plans.push(plan2)
@@ -115,18 +120,18 @@ function continuePlanning2(
   plan: Plan,
   remainingServices: Service[],
   freeTimeSpanIndex: number,
-  timeSpan: TimeSpan
+  timeSpan: TimeSpan,
 ): Plan | null {
   for (const services of generateCombinationsWithAMaximumDuration(
     remainingServices,
-    calculateTimeSpanLength(timeSpan)
+    calculateTimeSpanLength(timeSpan),
   )) {
     const plan2 = plan.concat([
       {
         timeSpan: {
           from: timeSpan.from,
           to: new Date(
-            timeSpan.from.getTime() + calculateTotalServicesDuration(services)
+            timeSpan.from.getTime() + calculateTotalServicesDuration(services),
           ),
         },
         services: Array.from(services),
@@ -138,7 +143,7 @@ function continuePlanning2(
     } else {
       const remainingServices2 = without(
         remainingServices,
-        last(plan2)!.services
+        last(plan2)!.services,
       )
       if (freeTimeSpanIndex + 1 < freeTimeSpans.length) {
         const plan3 = continuePlanning2(
@@ -146,7 +151,7 @@ function continuePlanning2(
           plan2,
           remainingServices2,
           freeTimeSpanIndex + 1,
-          freeTimeSpans[freeTimeSpanIndex + 1]
+          freeTimeSpans[freeTimeSpanIndex + 1],
         )
         if (plan3) {
           return plan3
@@ -161,14 +166,14 @@ function continuePlanning2(
 function determineFreeTimeSpans(
   from: Date,
   to: Date,
-  blockedTimeSpans: TimeSpan[]
+  blockedTimeSpans: TimeSpan[],
 ) {
   const freeTimeSpans: TimeSpan[] = []
 
   let currentStartTime = from
   do {
     const blockedTimeSpanAfterIndex = blockedTimeSpans.findIndex(
-      blockedTimeSpan => blockedTimeSpan.from > currentStartTime
+      (blockedTimeSpan) => blockedTimeSpan.from > currentStartTime,
     )
     const blockedTimeSpanAfter = blockedTimeSpans[blockedTimeSpanAfterIndex]
     const blockedTimeSpanBefore =
@@ -224,7 +229,7 @@ function mergeTimeSpans(timeSpans: TimeSpan[]): TimeSpan[] {
             mergedTimeSpans.splice(
               spliceStartIndex,
               spliceEndIndex - spliceStartIndex,
-              timeSpan
+              timeSpan,
             )
           } else {
             mergedTimeSpans.splice(mergedTimeSpansIndex, 0, timeSpan)
@@ -246,7 +251,7 @@ function mergeTimeSpans(timeSpans: TimeSpan[]): TimeSpan[] {
           mergedTimeSpans.splice(
             spliceStartIndex,
             spliceEndIndex - spliceStartIndex,
-            timeSpan
+            timeSpan,
           )
         } else {
           mergedTimeSpans.push(timeSpan)
@@ -259,7 +264,7 @@ function mergeTimeSpans(timeSpans: TimeSpan[]): TimeSpan[] {
 
 function generateSectionsFromTimeSpan(
   timeSpan: TimeSpan,
-  { planningTimeStep }: { planningTimeStep: number }
+  { planningTimeStep }: { planningTimeStep: number },
 ): TimeSpan[] {
   const sections = []
   const { from, to } = timeSpan
@@ -275,7 +280,7 @@ function generateSectionsFromTimeSpan(
     sections.push(timeSpan2)
 
     currentStartTime = new Date(
-      currentStartTime.getTime() + planningTimeStepInMs
+      currentStartTime.getTime() + planningTimeStepInMs,
     )
   }
   return sections
@@ -283,7 +288,7 @@ function generateSectionsFromTimeSpan(
 
 function* generateCombinationsWithAMaximumDuration(
   services: Service[],
-  maximumDuration: number
+  maximumDuration: number,
 ): Generator<Set<Service>> {
   for (const servicesCombination of generateCombinations(services)) {
     if (
@@ -318,20 +323,20 @@ function isStillOpenOnDay(time: Date, openingHours: OpeningHours): boolean {
     openingHoursOnDay &&
       (time.getHours() < openingHoursOnDay.to.hours ||
         (time.getHours() === openingHoursOnDay.to.hours &&
-          time.getMinutes() < openingHoursOnDay.to.minutes))
+          time.getMinutes() < openingHoursOnDay.to.minutes)),
   )
 }
 
 function compareTimeSpansByFrom(
   timeSpan1: TimeSpan,
-  timeSpan2: TimeSpan
+  timeSpan2: TimeSpan,
 ): number {
   return timeSpan1.from.getTime() - timeSpan2.from.getTime()
 }
 
 function doTimeSpansOverlapOrConnect(
   timeSpan1: TimeSpan,
-  timeSpan2: TimeSpan
+  timeSpan2: TimeSpan,
 ): boolean {
   return (
     (timeSpan1.to >= timeSpan2.from && timeSpan1.to <= timeSpan2.to) ||
@@ -341,8 +346,10 @@ function doTimeSpansOverlapOrConnect(
 }
 
 function mergeTwoTimeSpans(timeSpan1: TimeSpan, timeSpan2: TimeSpan): TimeSpan {
-  const from = minBy([timeSpan1.from, timeSpan2.from], date => date.getTime())!
-  const to = maxBy([timeSpan1.to, timeSpan2.to], date => date.getTime())!
+  const from = minBy([timeSpan1.from, timeSpan2.from], (date) =>
+    date.getTime(),
+  )!
+  const to = maxBy([timeSpan1.to, timeSpan2.to], (date) => date.getTime())!
   return {
     from,
     to,
@@ -359,7 +366,7 @@ function calculateTotalServicesDuration(services: Set<Service>): number {
 
 function findNextStartTimeThatFitsSections(
   time: Date,
-  { planningTimeStep }: { planningTimeStep: number }
+  { planningTimeStep }: { planningTimeStep: number },
 ): Date {
   const planningTimeStepInMs = planningTimeStep * 60 * 60 * 1000
   const time2 = time.getTime() - (time.getTime() % planningTimeStepInMs)

@@ -1,0 +1,44 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "prettier.enable": true,
+  "deno.enablePaths": ["app/supabase/functions"],
+  "deno.lint": true,
+  "deno.unstable": [
+    "bare-node-builtins",
+    "byonm",
+    "sloppy-imports",
+    "unsafe-proto",
+    "webgpu",
+    "broadcast-channel",
+    "worker-options",
+    "cron",
+    "kv",
+    "ffi",
+    "fs",
+    "http",
+    "net"
+  ],
+  "cSpell.words": [
+    "ampx",
+    "clsx",
+    "cmdk",
+    "corepack",
+    "esnext",
+    "geist",
+    "hookform",
+    "lucide",
+    "nextjs",
+    "supabase",
+    "tailwindcss",
+    "Tsrange",
+    "usebasejump"
+  ],
+  "typescript.preferences.importModuleSpecifierEnding": "minimal",
+  "javascript.preferences.importModuleSpecifierEnding": "minimal",
+  "typescript.experimental.updateImportsOnPaste": true,
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "javascript.experimental.updateImportsOnPaste": true
+}

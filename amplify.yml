@@ -1,0 +1,28 @@
+version: 1
+applications:
+  - frontend:
+      buildPath: "/"
+      phases:
+        preBuild:
+          commands:
+            - corepack enable
+            - corepack prepare pnpm@latest-9 --activate
+            - sed -i -e 's/node-linker=isolated/node-linker=hoisted/g' .npmrc
+            - pnpm config set store-dir ~/.pnpm-store
+            - pnpm install --frozen-lockfile
+            - echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> app/.env
+            - echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> app/.env
+        build:
+          commands:
+            - pnpm run --filter scheduling build
+            - pnpm run --filter app build
+      artifacts:
+        baseDirectory: app/.next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - app/.next/cache/**/*
+          - node_modules/**/*
+          - ~/.pnpm-store/**/*
+    appRoot: app
