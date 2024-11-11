@@ -2,10 +2,12 @@ version: 1
 applications:
   - frontend:
       phases:
-        build:
+        preBuild:
           commands:
             - corepack enable
             - pnpm install --frozen-lockfile
+        build:
+          commands:
             - pnpm run build
       artifacts:
         baseDirectory: .next
