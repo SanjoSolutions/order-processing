@@ -112,14 +112,14 @@ enum BookingError {
 export function Form({
   bookings: initialBookingsPromise,
 }: {
-  bookings: PromiseLike<any>
+  bookings: PromiseLike<{ data?: { during: string }[] }>
 }) {
   const initialBookings = use(initialBookingsPromise)
   const [bookings, setBookings] = useState<Booking[]>(
-    initialBookings.data.map(({ during }: { during: string }) => ({
+    initialBookings.data?.map(({ during }: { during: string }) => ({
       what: [],
       when: convertTsRangeToTimeSpan(during),
-    })),
+    })) ?? [],
   )
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
   const [what, setWhat] = useState<number[]>([])
