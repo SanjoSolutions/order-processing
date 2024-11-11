@@ -5,7 +5,7 @@ applications:
         preBuild:
           commands:
             - corepack enable
-            - pnpm install --frozen-lockfile
+            - cd .. && pnpm install --frozen-lockfile
         build:
           commands:
             - pnpm run build
