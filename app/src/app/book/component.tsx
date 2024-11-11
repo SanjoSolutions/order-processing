@@ -8,6 +8,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type MouseEventHandler,
 } from "react"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import {
@@ -188,10 +189,15 @@ export function Form({
     [bookings, what, workerRef],
   )
 
-  const onAddService = useCallback(
+  const onAddService: MouseEventHandler<HTMLButtonElement> = useCallback(
     function onAddService(event) {
-      const select = event.target.parentElement.querySelector("select")
-      setWhat([...what, select.value])
+      const select = (
+        event.target as HTMLButtonElement
+      ).parentElement!.querySelector("select")!
+      const addedService = parseInt(select.value, 10)
+      if (!Number.isNaN(addedService)) {
+        setWhat([...what, addedService])
+      }
     },
     [what],
   )

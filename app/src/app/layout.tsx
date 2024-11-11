@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Inter as FontSans } from "next/font/google"
-import "./bootstrap.js"
+import Script from "next/script"
 import "./custom.scss"
 import "./globals.css"
 
@@ -35,6 +35,8 @@ export default function RootLayout({
         <main className="min-h-screen flex flex-col items-center">
           {children}
         </main>
+
+        <Script src="/bootstrap.bundle.min.js" />
       </body>
     </html>
   )

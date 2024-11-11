@@ -21,7 +21,24 @@
     "http",
     "net"
   ],
-  "cSpell.words": ["supabase"],
+  "cSpell.words": [
+    "ampx",
+    "clsx",
+    "cmdk",
+    "corepack",
+    "esnext",
+    "geist",
+    "hookform",
+    "lucide",
+    "nextjs",
+    "supabase",
+    "tailwindcss",
+    "Tsrange",
+    "usebasejump"
+  ],
   "typescript.preferences.importModuleSpecifierEnding": "minimal",
-  "javascript.preferences.importModuleSpecifierEnding": "minimal"
+  "javascript.preferences.importModuleSpecifierEnding": "minimal",
+  "typescript.experimental.updateImportsOnPaste": true,
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "javascript.experimental.updateImportsOnPaste": true
 }

@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "3.2.2",
+    "@next/eslint-plugin-next": "^15.0.3",
     "@playwright/test": "^1.48.2",
     "@storybook/addon-essentials": "8.4.2",
     "@storybook/addon-interactions": "8.4.2",
@@ -84,7 +85,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5",
     "typescript-eslint": "^8.9.0",
-    "vitest": "^2.1.4",
-    "vitest-tsconfig-paths": "^3.4.1"
+    "vite-tsconfig-paths": "^5.1.2",
+    "vitest": "^2.1.4"
   }
 }

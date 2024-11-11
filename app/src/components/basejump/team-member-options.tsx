@@ -1,29 +1,24 @@
 "use client"
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { GetAccountMembersResponse } from "@usebasejump/shared"
 import { Ellipsis } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Button } from "../ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { Button } from "../ui/button"
-import { GetAccountMembersResponse } from "@usebasejump/shared"
-import { useEffect, useState } from "react"
-import {
-  DialogHeader,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-  DialogPortal,
-  DialogOverlay,
-} from "@/components/ui/dialog"
-import EditTeamMemberRoleForm from "./edit-team-member-role-form"
 import DeleteTeamMemberForm from "./delete-team-member-form"
+import EditTeamMemberRoleForm from "./edit-team-member-role-form"
 
 type Props = {
   accountId: string
@@ -43,7 +38,7 @@ export default function TeamMemberOptions({
     if (updateTeamRole) {
       toggleUpdateTeamRole(false)
     }
-  }, [teamMember.account_role])
+  }, [teamMember.account_role, updateTeamRole])
   return (
     <>
       <DropdownMenu>
