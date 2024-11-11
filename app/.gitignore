@@ -41,3 +41,15 @@ amplify_outputs*
 amplifyconfiguration*
 
 .env
+
+# supabase for testing
+supabase/.branches
+supabase/.temp
+supabase/**/*.env
+
+*storybook.log
+
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
