@@ -1,8 +1,6 @@
 "use client"
 
-import { type Schema } from "@/../amplify/data/resource"
-import { Amplify } from "aws-amplify"
-import { generateClient } from "aws-amplify/data"
+import { createClient } from "@/supabase/client/createClient"
 import {
   FormEventHandler,
   use,
@@ -19,16 +17,13 @@ import {
   TimeSlot,
   TimeSpan,
 } from "scheduling"
-import outputs from "../../../amplify_outputs.json"
 import { services } from "./data"
+
+const supabase = createClient()
 
 // FIXME: Handle closed days correctly.
 
 // TODO: Support scheduling for a long time (more than a year) in the future.
-
-Amplify.configure(outputs)
-
-const client = generateClient<Schema>()
 
 // TODO: Support other locales too.
 const locale = "de-DE"
@@ -102,12 +97,17 @@ function convertTsRangeToTimeSpan(value: string): TimeSpan {
   const match = tsRangeRegExp.exec(value)
   if (match) {
     return {
-      from: new Date(match[1]),
-      to: new Date(match[2]),
+      from: new Date(match[1] + " UTC"),
+      to: new Date(match[2] + " UTC"),
     }
   } else {
     throw new Error("Failed to parse Tsrange.")
   }
+}
+
+enum Error {
+  Other = 0,
+  DuringOverlaps = 1,
 }
 
 export function Form({
@@ -116,8 +116,12 @@ export function Form({
   bookings: PromiseLike<any>
 }) {
   const initialBookings = use(initialBookingsPromise)
-  console.log("initialBookings", initialBookings)
-  const [bookings, setBookings] = useState<Booking[]>(initialBookings.data)
+  const [bookings, setBookings] = useState<Booking[]>(
+    initialBookings.data.map(({ during }: { during: string }) => ({
+      what: [],
+      when: convertTsRangeToTimeSpan(during),
+    })),
+  )
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
   const [what, setWhat] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -202,25 +206,26 @@ export function Form({
       const whenIndex = formData.get("when")
       if (what.length >= 1 && whenIndex !== null) {
         const timeSlot = timeSlots[parseInt(whenIndex.toString(), 10)]
-        const { data, errors } = await client.mutations.book({
+        const { error, status } = await supabase.from("bookings").insert({
           during: `[${timeSlot.from.toISOString()}, ${timeSlot.to.toISOString()})`,
         })
-        if (errors) {
-          setBookingWasSuccessful(false)
-        } else if (data) {
-          const { result, error } = JSON.parse(data as string)
-          if (error) {
-            setBookingWasSuccessful(false)
-            setError(error)
-          } else if (result?.hasBooked) {
-            setBooking({
-              what: what.map((whatIndex) => services[whatIndex]),
-              when: timeSlots[parseInt(whenIndex.toString(), 10)],
-            })
-            setBookingWasSuccessful(true)
+        if (error) {
+          if (error.code === "23P01") {
+            setError(Error.DuringOverlaps)
+          } else {
+            setError(Error.Other)
           }
+          setBookingWasSuccessful(false)
+        } else if (status === 201) {
+          setBookingWasSuccessful(true)
+          setBooking({
+            what: what.map((whatIndex) => services[whatIndex]),
+            when: timeSlots[parseInt(whenIndex.toString(), 10)],
+          })
+          setError(null)
         } else {
           setBookingWasSuccessful(false)
+          setError(Error.Other)
         }
         setIsSubmitting(false)
       }
@@ -239,7 +244,7 @@ export function Form({
 
       {bookingWasSuccessful === false && (
         <div className="alert alert-danger mb-3" role="alert">
-          {error === 1
+          {error === Error.DuringOverlaps
             ? "Der Zeitraum, den Sie ausgewählt haben, ist bereits belegt. Bitte wählen Sie einen anderen Zeitraum aus."
             : "Es gab einen Fehler beim buchen. Bitte versuchen Sie es telefonisch."}
         </div>
