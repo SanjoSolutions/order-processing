@@ -8,6 +8,7 @@ applications:
             - cd .. && pnpm install --frozen-lockfile && cd app
         build:
           commands:
+            - cd ../scheduling && pnpm run build && cd ../app
             - pnpm run build
       artifacts:
         baseDirectory: .next
