@@ -21,9 +21,7 @@ import { services } from "./data"
 
 const supabase = createClient()
 
-// FIXME: Handle closed days correctly.
-
-// TODO: Support scheduling for a long time (more than a year) in the future.
+// TODO: Support scheduling for a long time (more than a year) in the future. For the case where someone is booked out for a long time.
 
 // TODO: Support other locales too.
 const locale = "de-DE"
