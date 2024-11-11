@@ -105,7 +105,7 @@ function convertTsRangeToTimeSpan(value: string): TimeSpan {
   }
 }
 
-enum Error {
+enum BookingError {
   Other = 0,
   DuringOverlaps = 1,
 }
@@ -211,9 +211,9 @@ export function Form({
         })
         if (error) {
           if (error.code === "23P01") {
-            setError(Error.DuringOverlaps)
+            setError(BookingError.DuringOverlaps)
           } else {
-            setError(Error.Other)
+            setError(BookingError.Other)
           }
           setBookingWasSuccessful(false)
         } else if (status === 201) {
@@ -225,7 +225,7 @@ export function Form({
           setError(null)
         } else {
           setBookingWasSuccessful(false)
-          setError(Error.Other)
+          setError(BookingError.Other)
         }
         setIsSubmitting(false)
       }
@@ -246,7 +246,7 @@ export function Form({
 
           {bookingWasSuccessful === false && (
             <div className="alert alert-danger mb-3" role="alert">
-              {error === Error.DuringOverlaps
+              {error === BookingError.DuringOverlaps
                 ? "Der Zeitraum, den Sie ausgewählt haben, ist bereits belegt. Bitte wählen Sie einen anderen Zeitraum aus."
                 : "Es gab einen Fehler beim buchen. Bitte versuchen Sie es telefonisch."}
             </div>
