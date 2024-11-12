@@ -1,15 +1,23 @@
-const timeIntervalRegExp = /^(\d+) days? (\d+):(\d+):(\d+)$/
+const timeIntervalRegExp = /^(?:(\d+) days? ?)?(?:(\d+):(\d+):(\d+))?$/
 
 export function convertTimeIntervalToMilliseconds(value: string): number {
   const match = timeIntervalRegExp.exec(value)
   if (match) {
     const [, days, hours, minutes, seconds] = match
-    return (
-      parseInt(days, 10) * 24 * 60 * 60 * 1000 +
-      parseInt(hours, 10) * 60 * 60 * 1000 +
-      parseInt(minutes, 10) * 60 * 1000 +
-      parseInt(seconds, 10) * 1000
-    )
+    let result = 0
+    if (days) {
+      result += parseInt(days, 10) * 24 * 60 * 60 * 1000
+    }
+    if (hours) {
+      result += parseInt(hours, 10) * 60 * 60 * 1000
+    }
+    if (minutes) {
+      result += parseInt(minutes, 10) * 60 * 1000
+    }
+    if (seconds) {
+      result += parseInt(seconds, 10) * 1000
+    }
+    return result
   } else {
     throw new Error("Invalid time interval format.")
   }

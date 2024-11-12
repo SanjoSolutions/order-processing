@@ -19,6 +19,8 @@ export function Client({
     initialServices.data ?? [],
   )
 
+  console.log("services", services)
+
   useEffect(function listenToServiceInserts() {
     const subscription = supabase
       .channel("room1")
@@ -40,14 +42,22 @@ export function Client({
       <h1>Services</h1>
 
       {services && (
-        <ul className="list-group mb-3">
-          {services.map((service) => (
-            <li key={service.id} className="list-group-item">
-              {service.name} (duration:{" "}
-              {formatPostgresDuration(service.duration)})
-            </li>
-          ))}
-        </ul>
+        <table className="table table-striped mb-3">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            {services.map((service) => (
+              <tr key={service.id}>
+                <td>{service.name}</td>
+                <td>{formatPostgresDuration(service.duration)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
       <h2>Add new service</h2>
@@ -76,6 +86,7 @@ export function Client({
               <div className="input-group">
                 <input
                   type="number"
+                  defaultValue={0}
                   min={0}
                   className="form-control"
                   id="duration-days"
@@ -91,6 +102,7 @@ export function Client({
               <div className="input-group">
                 <input
                   type="number"
+                  defaultValue={0}
                   min={0}
                   className="form-control"
                   id="duration-hours"
@@ -106,6 +118,7 @@ export function Client({
               <div className="input-group">
                 <input
                   type="number"
+                  defaultValue={0}
                   min={0}
                   className="form-control"
                   id="duration-minutes"

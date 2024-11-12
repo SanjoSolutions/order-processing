@@ -16,9 +16,19 @@ describe("convertTimeIntervalToMilliseconds", () => {
     expect(result).toBe(217845000)
   })
 
-  it('converts "0 days 00:00:00" to milliseconds', () => {
+  it('converts "00:00:00" to milliseconds', () => {
     const result = convertTimeIntervalToMilliseconds("0 days 00:00:00")
-    expect(result).toBe(0) // 0 milliseconds
+    expect(result).toBe(0)
+  })
+
+  it('converts "12:30:45" to milliseconds', () => {
+    const result = convertTimeIntervalToMilliseconds("12:30:45")
+    expect(result).toBe(45045000)
+  })
+
+  it('converts "720 days" to milliseconds', () => {
+    const result = convertTimeIntervalToMilliseconds("720 days")
+    expect(result).toBe(62208000000)
   })
 
   it('throws an error for invalid format "invalid string"', () => {
