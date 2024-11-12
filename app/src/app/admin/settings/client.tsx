@@ -6,6 +6,7 @@ import type { Service } from "@/types"
 import Form from "next/form"
 import { use, useEffect, useState } from "react"
 import { addService } from "./actions"
+import { OpeningHoursSettings } from "./OpeningHoursSettings"
 
 const supabase = createClient()
 
@@ -37,7 +38,11 @@ export function Client({
 
   return (
     <div className="flex-grow-1 p-3">
-      <h1>Services</h1>
+      <h1>Settings</h1>
+
+      <OpeningHoursSettings />
+
+      <h2>Services</h2>
 
       {services && (
         <table className="table table-striped mb-3">
@@ -58,7 +63,7 @@ export function Client({
         </table>
       )}
 
-      <h2>Add new service</h2>
+      <h3>Add new service</h3>
 
       <Form action={addService}>
         <div className="mb-3">

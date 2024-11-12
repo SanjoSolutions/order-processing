@@ -12,3 +12,7 @@ export async function addService(formData: FormData) {
     duration: `${days} days ${hours} hours ${minutes} minutes`,
   })
 }
+
+export async function saveOpeningHours(formData: FormData) {
+  const supabase = await createClient()
+}
