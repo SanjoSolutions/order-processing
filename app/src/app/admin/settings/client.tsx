@@ -19,8 +19,6 @@ export function Client({
     initialServices.data ?? [],
   )
 
-  console.log("services", services)
-
   useEffect(function listenToServiceInserts() {
     const subscription = supabase
       .channel("room1")
