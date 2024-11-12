@@ -1,3 +1,11 @@
 {
-  "recommendations": ["denoland.vscode-deno"]
+  "recommendations": [
+    "denoland.vscode-deno",
+    "torresgol10.bootstrap-class-autocomplete",
+    "dbaeumer.vscode-eslint",
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "redhat.vscode-yaml",
+    "inferrinizzard.prettier-sql-vscode"
+  ]
 }

@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation"
 export default function Admin({ children }: { children: React.ReactNode }) {
   const pathName = usePathname()
 
+  // FIXME: Sidebar on mobile.
+
   return (
     <div className="d-flex flex-nowrap flex-grow-1 w-100">
       <div

@@ -22,6 +22,6 @@ export async function logIn(previousState: any, formData: FormData) {
       errorMessage: error.message,
     }
   } else {
-    return redirect(returnUrl || "/dashboard")
+    return redirect(returnUrl || "/admin")
   }
 }

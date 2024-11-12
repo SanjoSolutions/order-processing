@@ -1,12 +1,11 @@
 "use client"
 
-import { RegisterForm } from "@/components/register-form"
-import Form from "next/form"
-import { Suspense, useActionState } from "react"
-import { ReturnURLInput } from "../ReturnURLInput"
+import Link from "next/link.js"
+import { useActionState } from "react"
+import { Centered } from "../Centered"
 import { register } from "./actions"
 
-export default function Page() {
+export default function Register() {
   const [state, formAction, isPending] = useActionState(register, {
     email: "",
     password: "",
@@ -14,18 +13,49 @@ export default function Page() {
   })
 
   return (
-    <div className="flex h-screen w-full items-center justify-center px-4">
-      <Form action={formAction}>
-        <Suspense>
-          <ReturnURLInput />
-        </Suspense>
-        <RegisterForm
-          email={state.email}
-          password={state.password}
-          errorMessage={state.errorMessage}
-          isPending={isPending}
-        />
-      </Form>
-    </div>
+    <Centered>
+      <form action={formAction}>
+        {state.errorMessage && (
+          <div className="alert alert-danger">{state.errorMessage}</div>
+        )}
+
+        <div className="form-floating mb-2">
+          <input
+            type="email"
+            className="form-control"
+            id="email"
+            name="email"
+            placeholder="name@example.com"
+            autoFocus
+            defaultValue={state.email}
+          />
+          <label htmlFor="floatingInput">Email address</label>
+        </div>
+
+        <div className="form-floating mb-2">
+          <input
+            type="password"
+            className="form-control"
+            id="password"
+            name="password"
+            placeholder="Password"
+            defaultValue={state.password}
+          />
+          <label htmlFor="floatingPassword">Password</label>
+        </div>
+
+        <button
+          className="btn btn-primary w-100 py-2"
+          type="submit"
+          disabled={isPending}
+        >
+          Register
+        </button>
+
+        <div className="mt-2 text-center">
+          <Link href="/log-in">Log in</Link>
+        </div>
+      </form>
+    </Centered>
   )
 }

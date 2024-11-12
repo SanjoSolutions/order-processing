@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils"
 import { Inter as FontSans } from "next/font/google"
 import Script from "next/script"
 import "./custom.scss"
@@ -24,17 +23,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html
-      lang="en"
-      className={cn(
-        "min-h-screen bg-background font-sans antialiased",
-        fontSans.variable,
-      )}
-    >
-      <body className="bg-background text-foreground">
-        <main className="min-h-screen flex flex-col items-center">
-          {children}
-        </main>
+    <html lang="en" className="h-100">
+      <body className="d-flex flex-column h-100">
+        {children}
 
         <Script src="/bootstrap.bundle.min.js" />
       </body>

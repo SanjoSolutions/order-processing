@@ -1,17 +1,16 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Check } from "lucide-react"
+import Link from "next/link"
+import { Centered } from "../Centered"
 
 export default function () {
   return (
-    <div className="flex h-screen w-full items-center justify-center px-4">
-      <Alert variant="success" className="w-auto">
-        <Check className="h-4 w-4" />
-        <AlertTitle>Registered</AlertTitle>
-        <AlertDescription>
-          Registration was successful. Please check your email inbox for a
-          confirmation mail.
-        </AlertDescription>
-      </Alert>
-    </div>
+    <Centered>
+      <div className="alert alert-success">
+        Registration was successful. Please check your email inbox for a
+        confirmation mail.
+      </div>
+      <div className="mt-2 text-center">
+        <Link href="/log-in">Log in</Link>
+      </div>
+    </Centered>
   )
 }

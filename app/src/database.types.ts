@@ -49,6 +49,27 @@ export type Database = {
         }
         Relationships: []
       }
+      services: {
+        Row: {
+          created_at: string
+          duration: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          duration: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          duration?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -596,4 +617,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-

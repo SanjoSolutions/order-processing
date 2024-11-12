@@ -40,5 +40,10 @@
   "javascript.preferences.importModuleSpecifierEnding": "minimal",
   "typescript.experimental.updateImportsOnPaste": true,
   "typescript.preferences.preferTypeOnlyAutoImports": true,
-  "javascript.experimental.updateImportsOnPaste": true
+  "javascript.experimental.updateImportsOnPaste": true,
+  "Prettier-SQL.keywordCase": "upper",
+  "Prettier-SQL.SQLFlavourOverride": "postgresql",
+  "[sql]": {
+    "editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode"
+  }
 }
