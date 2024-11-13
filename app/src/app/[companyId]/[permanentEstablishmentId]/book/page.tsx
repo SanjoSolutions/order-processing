@@ -10,5 +10,17 @@ export default async function () {
   ).toISOString()})`
   const bookings = supabase.from("bookings").select().overlaps("during", range)
 
-  return <Form bookings={bookings} />
+  const company = supabase.from("companies").select("name").single()
+  const permanentEstablishment = supabase
+    .from("permanent_establishments")
+    .select("name, street_and_house_number, zip, city, country")
+    .single()
+
+  return (
+    <Form
+      company={company}
+      permanentEstablishment={permanentEstablishment}
+      bookings={bookings}
+    />
+  )
 }

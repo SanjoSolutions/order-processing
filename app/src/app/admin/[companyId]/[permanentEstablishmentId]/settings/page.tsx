@@ -9,6 +9,11 @@ export default async function ({
   const supabase = await createClient()
 
   const { permanentEstablishmentId } = await params
+  const permanentEstablishment = supabase
+    .from("permanent_establishments")
+    .select()
+    .eq("id", permanentEstablishmentId)
+    .single()
   const openingHours = supabase
     .from("opening_hours")
     .select()
@@ -16,5 +21,11 @@ export default async function ({
     .single()
   const services = supabase.from("services").select()
 
-  return <Client openingHours={openingHours} services={services} />
+  return (
+    <Client
+      permanentEstablishment={permanentEstablishment}
+      openingHours={openingHours}
+      services={services}
+    />
+  )
 }

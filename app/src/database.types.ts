@@ -36,15 +36,15 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
-          during: unknown | null
+          during: string
           id: number
         }
         Insert: {
-          during?: unknown | null
+          during: string
           id?: number
         }
         Update: {
-          during?: unknown | null
+          during?: string
           id?: number
         }
         Relationships: []
@@ -208,8 +208,8 @@ export type Database = {
           country: string | null
           id: number
           name: string
-          postalcode: string | null
-          street_and_housenumber: string | null
+          street_and_house_number: string | null
+          zip: string | null
         }
         Insert: {
           city?: string | null
@@ -217,8 +217,8 @@ export type Database = {
           country?: string | null
           id?: number
           name: string
-          postalcode?: string | null
-          street_and_housenumber?: string | null
+          street_and_house_number?: string | null
+          zip?: string | null
         }
         Update: {
           city?: string | null
@@ -226,8 +226,8 @@ export type Database = {
           country?: string | null
           id?: number
           name?: string
-          postalcode?: string | null
-          street_and_housenumber?: string | null
+          street_and_house_number?: string | null
+          zip?: string | null
         }
         Relationships: [
           {
@@ -266,19 +266,19 @@ export type Database = {
       services: {
         Row: {
           created_at: string
-          duration: unknown
+          duration: string
           id: number
           name: string
         }
         Insert: {
           created_at?: string
-          duration: unknown
+          duration: string
           id?: number
           name: string
         }
         Update: {
           created_at?: string
-          duration?: unknown
+          duration?: string
           id?: number
           name?: string
         }
@@ -450,6 +450,12 @@ export type Database = {
           lookup_invitation_token: string
         }
         Returns: Json
+      }
+      permanent_establishments_of_companies_that_user_is_admin_of: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: number
+        }[]
       }
       remove_account_member: {
         Args: {

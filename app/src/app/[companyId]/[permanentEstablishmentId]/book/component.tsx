@@ -1,6 +1,12 @@
 "use client"
 
+import { generateFormattedAddress } from "@/generateFormattedAddress"
 import { createClient } from "@/supabase/client/createClient"
+import {
+  Booking as BookingPostgres,
+  type Company,
+  type PermanentEstablishment,
+} from "@/types"
 import {
   FormEventHandler,
   use,
@@ -12,11 +18,11 @@ import {
 } from "react"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import {
-  Booking,
   convertPlansToRealizationTimeSpans,
   Service,
   TimeSlot,
   TimeSpan,
+  type Booking,
 } from "scheduling"
 import { services } from "./data"
 
@@ -110,13 +116,24 @@ enum BookingError {
 }
 
 export function Form({
+  company: companyPromise,
+  permanentEstablishment: permanentEstablishmentPromise,
   bookings: initialBookingsPromise,
 }: {
-  bookings: PromiseLike<{ data?: { during: string }[] }>
+  company: PromiseLike<{ data?: Pick<Company, "name"> }>
+  permanentEstablishment: PromiseLike<{
+    data?: Pick<
+      PermanentEstablishment,
+      "name" | "street_and_house_number" | "zip" | "city" | "country"
+    >
+  }>
+  bookings: PromiseLike<{ data?: BookingPostgres[] }>
 }) {
+  const company = use(companyPromise).data
+  const permanentEstablishment = use(permanentEstablishmentPromise).data
   const initialBookings = use(initialBookingsPromise)
   const [bookings, setBookings] = useState<Booking[]>(
-    initialBookings.data?.map(({ during }: { during: string }) => ({
+    initialBookings.data?.map(({ during }) => ({
       what: [],
       when: convertTsRangeToTimeSpan(during),
     })) ?? [],
@@ -237,17 +254,32 @@ export function Form({
     [timeSlots, what],
   )
 
+  const formattedAddress = generateFormattedAddress(permanentEstablishment)
+
   return (
     <div className="container mt-3">
       <div className="row justify-content-center">
         <div className="col col-md-6">
+          <h1>Book</h1>
+
+          <div className="mb-2">
+            <strong>Company:</strong> {company?.name}
+            <br />
+            {permanentEstablishment && (
+              <>
+                <strong>Permanent establishment:</strong>{" "}
+                {permanentEstablishment.name}
+                {formattedAddress && ` (${formattedAddress})`}
+              </>
+            )}
+          </div>
+
           {booking && bookingWasSuccessful && (
             <div className="alert alert-success" role="alert">
               {formatServices(booking.what)} für den{" "}
               {formatTimeSlotForBookingConfirmation(booking.when)} gebucht.
             </div>
           )}
-
           {bookingWasSuccessful === false && (
             <div className="alert alert-danger mb-3" role="alert">
               {error === BookingError.DuringOverlaps
@@ -255,7 +287,6 @@ export function Form({
                 : "Es gab einen Fehler beim buchen. Bitte versuchen Sie es telefonisch."}
             </div>
           )}
-
           {!booking && (
             <form onSubmit={onSubmit}>
               <div className="mb-2">

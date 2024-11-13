@@ -2,19 +2,22 @@
 
 import { formatPostgresDuration } from "@/duration"
 import { createClient } from "@/supabase/client/createClient"
-import type { OpeningHours, Service } from "@/types"
+import type { OpeningHours, PermanentEstablishment, Service } from "@/types"
 import Form from "next/form"
 import { useParams } from "next/navigation"
 import { use, useEffect, useState } from "react"
 import { addService } from "./actions"
+import { AddressSettings } from "./AddressSettings"
 import { OpeningHoursSettings } from "./OpeningHoursSettings"
 
 const supabase = createClient()
 
 export function Client({
+  permanentEstablishment,
   openingHours,
   services: servicesPromise,
 }: {
+  permanentEstablishment: PromiseLike<{ data: PermanentEstablishment | null }>
   openingHours: PromiseLike<{ data: OpeningHours | null }>
   services: PromiseLike<{ data: Service[] | null }>
 }) {
@@ -45,6 +48,11 @@ export function Client({
   return (
     <div className="flex-grow-1 p-3">
       <h1>Settings</h1>
+
+      <AddressSettings
+        permanentEstablishment={permanentEstablishment}
+        className="mb-3"
+      />
 
       <OpeningHoursSettings
         openingHours={openingHours}

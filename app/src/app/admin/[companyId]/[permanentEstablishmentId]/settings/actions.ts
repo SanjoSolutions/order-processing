@@ -41,3 +41,21 @@ export async function saveOpeningHours(previousState: any, formData: FormData) {
     .single()
   return data
 }
+
+export async function saveAddress(previousState: any, formData: FormData) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("permanent_establishments")
+    .update({
+      street_and_house_number: formData.get(
+        "street-and-house-number",
+      ) as string,
+      zip: formData.get("zip") as string,
+      city: formData.get("city") as string,
+      country: formData.get("country") as string,
+    })
+    .eq("id", parseInt(formData.get("id") as string, 10))
+    .select()
+    .single()
+  return data
+}

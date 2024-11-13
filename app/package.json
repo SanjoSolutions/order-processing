@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-types": "supabase gen types --local --lang=typescript > src/database.types.ts"
+    "generate-types": "supabase gen types --local --lang=typescript > src/database.types.ts && sed -i -e 's/during: unknown/during: string/g' -e 's/during?: unknown/during?: string/g' -e 's/duration: unknown/duration: string/g' -e 's/duration?: unknown/duration?: string/g' src/database.types.ts"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.678.0",
