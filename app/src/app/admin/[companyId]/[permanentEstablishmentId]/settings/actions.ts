@@ -13,28 +13,31 @@ export async function addService(formData: FormData) {
   })
 }
 
-export async function saveOpeningHours(formData: FormData) {
+export async function saveOpeningHours(previousState: any, formData: FormData) {
   const supabase = await createClient()
-  const mondayFrom = formData.get("monday-from") as string
-  console.log(mondayFrom)
-  const { error } = await supabase.from("opening_hours").upsert({
-    permanent_establishment_id: formData.get(
-      "permanent-establishment-id",
-    ) as string,
-    monday_from: (formData.get("monday-from") as string) || null,
-    monday_to: (formData.get("monday-to") as string) || null,
-    tuesday_from: (formData.get("tuesday-from") as string) || null,
-    tuesday_to: (formData.get("tuesday-to") as string) || null,
-    wednesday_from: (formData.get("wednesday-from") as string) || null,
-    wednesday_to: (formData.get("wednesday-to") as string) || null,
-    thursday_from: (formData.get("thursday-from") as string) || null,
-    thursday_to: (formData.get("thursday-to") as string) || null,
-    friday_from: (formData.get("friday-from") as string) || null,
-    friday_to: (formData.get("friday-to") as string) || null,
-    saturday_from: (formData.get("saturday-from") as string) || null,
-    saturday_to: (formData.get("saturday-to") as string) || null,
-    sunday_from: (formData.get("sunday-from") as string) || null,
-    sunday_to: (formData.get("sunday-to") as string) || null,
-  })
-  console.log("error", error)
+  const { data } = await supabase
+    .from("opening_hours")
+    .upsert({
+      permanent_establishment_id: parseInt(
+        formData.get("permanent-establishment-id") as string,
+        10,
+      ),
+      monday_from: (formData.get("monday-from") as string) || null,
+      monday_to: (formData.get("monday-to") as string) || null,
+      tuesday_from: (formData.get("tuesday-from") as string) || null,
+      tuesday_to: (formData.get("tuesday-to") as string) || null,
+      wednesday_from: (formData.get("wednesday-from") as string) || null,
+      wednesday_to: (formData.get("wednesday-to") as string) || null,
+      thursday_from: (formData.get("thursday-from") as string) || null,
+      thursday_to: (formData.get("thursday-to") as string) || null,
+      friday_from: (formData.get("friday-from") as string) || null,
+      friday_to: (formData.get("friday-to") as string) || null,
+      saturday_from: (formData.get("saturday-from") as string) || null,
+      saturday_to: (formData.get("saturday-to") as string) || null,
+      sunday_from: (formData.get("sunday-from") as string) || null,
+      sunday_to: (formData.get("sunday-to") as string) || null,
+    })
+    .select()
+    .single()
+  return data
 }

@@ -1,9 +1,14 @@
+import { createClient } from "@/supabase/server/createClient"
 import Form from "next/form"
+import { AdminLayout } from "../AdminLayout"
 import { createCompany } from "./actions"
 
-export default function CreateCompanyForm() {
+export default async function CreateCompanyForm() {
+  const supabase = await createClient()
+  const companies = supabase.from("companies").select()
+
   return (
-    <div>
+    <AdminLayout companies={companies}>
       <h1>Create company</h1>
 
       <Form action={createCompany}>
@@ -24,6 +29,6 @@ export default function CreateCompanyForm() {
           Create company
         </button>
       </Form>
-    </div>
+    </AdminLayout>
   )
 }

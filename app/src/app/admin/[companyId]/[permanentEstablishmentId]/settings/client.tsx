@@ -2,7 +2,7 @@
 
 import { formatPostgresDuration } from "@/duration"
 import { createClient } from "@/supabase/client/createClient"
-import type { Service } from "@/types"
+import type { OpeningHours, Service } from "@/types"
 import Form from "next/form"
 import { useParams } from "next/navigation"
 import { use, useEffect, useState } from "react"
@@ -12,11 +12,13 @@ import { OpeningHoursSettings } from "./OpeningHoursSettings"
 const supabase = createClient()
 
 export function Client({
+  openingHours,
   services: servicesPromise,
 }: {
+  openingHours: PromiseLike<{ data: OpeningHours | null }>
   services: PromiseLike<{ data: Service[] | null }>
 }) {
-  const permanentEstablishmentId = useParams<{
+  const { permanentEstablishmentId } = useParams<{
     permanentEstablishmentId: string
   }>()
   const initialServices = use(servicesPromise)
@@ -45,6 +47,7 @@ export function Client({
       <h1>Settings</h1>
 
       <OpeningHoursSettings
+        openingHours={openingHours}
         permanentEstablishmentId={permanentEstablishmentId}
       />
 

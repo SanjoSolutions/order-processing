@@ -118,7 +118,6 @@ export type Database = {
           created_at: string
           friday_from: string | null
           friday_to: string | null
-          id: number
           monday_from: string | null
           monday_to: string | null
           permanent_establishment_id: number
@@ -137,7 +136,6 @@ export type Database = {
           created_at?: string
           friday_from?: string | null
           friday_to?: string | null
-          id?: number
           monday_from?: string | null
           monday_to?: string | null
           permanent_establishment_id: number
@@ -156,7 +154,6 @@ export type Database = {
           created_at?: string
           friday_from?: string | null
           friday_to?: string | null
-          id?: number
           monday_from?: string | null
           monday_to?: string | null
           permanent_establishment_id?: number
@@ -175,7 +172,7 @@ export type Database = {
           {
             foreignKeyName: "fk_permanent_establishment_id"
             columns: ["permanent_establishment_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "permanent_establishments"
             referencedColumns: ["id"]
           },

@@ -162,12 +162,48 @@ ALTER TABLE public.opening_hours
 ADD COLUMN permanent_establishment_id BIGINT NOT NULL,
 ADD CONSTRAINT fk_permanent_establishment_id FOREIGN KEY (permanent_establishment_id) REFERENCES permanent_establishments (id) ON UPDATE CASCADE ON DELETE CASCADE;
 
+CREATE
+OR REPLACE FUNCTION public.permanent_establishments_of_companies_that_user_is_admin_of () RETURNS TABLE (id int8) LANGUAGE SQL AS $$
+  SELECT
+    id
+  FROM
+    permanent_establishments
+  WHERE
+    company_id IN (
+      SELECT
+        companies_that_user_is_admin_of ()
+    );
+$$;
+
+REVOKE ALL ON FUNCTION public.permanent_establishments_of_companies_that_user_is_admin_of
+FROM
+  PUBLIC;
+
+GRANT
+EXECUTE ON FUNCTION public.permanent_establishments_of_companies_that_user_is_admin_of TO anon,
+authenticated;
+
 CREATE POLICY "Enable insert for authenticated users only" ON "public"."opening_hours" AS PERMISSIVE FOR INSERT TO authenticated
 WITH
   CHECK (
     permanent_establishment_id IN (
       SELECT
-        companies_that_user_is_admin_of ()
+        permanent_establishments_of_companies_that_user_is_admin_of ()
+    )
+  );
+
+CREATE POLICY "Enable update for authenticated users only" ON "public"."opening_hours" AS PERMISSIVE FOR
+UPDATE TO authenticated USING (
+  permanent_establishment_id IN (
+    SELECT
+      permanent_establishments_of_companies_that_user_is_admin_of ()
+  )
+)
+WITH
+  CHECK (
+    permanent_establishment_id IN (
+      SELECT
+        permanent_establishments_of_companies_that_user_is_admin_of ()
     )
   );
 
@@ -188,3 +224,8 @@ SELECT
         companies_that_user_is_admin_of ()
     )
   );
+
+ALTER TABLE public.opening_hours
+DROP CONSTRAINT opening_hours_pkey,
+DROP COLUMN id,
+ADD PRIMARY KEY (permanent_establishment_id);

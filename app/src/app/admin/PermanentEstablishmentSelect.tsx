@@ -15,7 +15,10 @@ export function PermanentEstablishmentSelect({
   }>
 }) {
   const permanentEstablishments = use(permanentEstablishmentsPromise).data
-  const { companyId } = useParams<{ companyId?: string }>()
+  const { companyId, permanentEstablishmentId } = useParams<{
+    companyId?: string
+    permanentEstablishmentId?: string
+  }>()
 
   const onChange: ChangeEventHandler<HTMLSelectElement> = useCallback(
     function onChange(event) {
@@ -27,7 +30,11 @@ export function PermanentEstablishmentSelect({
   return (
     permanentEstablishments &&
     permanentEstablishments.length >= 1 && (
-      <select className={clsx("form-select", className)} onChange={onChange}>
+      <select
+        className={clsx("form-select", className)}
+        onChange={onChange}
+        defaultValue={permanentEstablishmentId}
+      >
         <option value="" hidden>
           Select permanent establishment
         </option>
