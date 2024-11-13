@@ -1,5 +1,3 @@
-BEGIN;
-
 CREATE TABLE IF NOT EXISTS
   public.bookings (
     during tsrange,
@@ -13,8 +11,6 @@ CREATE TABLE IF NOT EXISTS
   );
 
 ALTER TABLE "public"."bookings" ENABLE ROW LEVEL SECURITY;
-
-COMMIT;
 
 CREATE POLICY "Allow anyone to retrieve all bookings" ON "public"."bookings" AS PERMISSIVE FOR
 SELECT

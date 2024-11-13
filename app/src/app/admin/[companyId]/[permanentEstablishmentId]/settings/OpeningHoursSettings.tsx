@@ -1,10 +1,20 @@
 import Form from "next/form"
-import { saveOpeningHours } from "./actions"
+import { saveOpeningHours } from "../../settings/actions"
 
-export function OpeningHoursSettings() {
+export function OpeningHoursSettings({
+  permanentEstablishmentId,
+}: {
+  permanentEstablishmentId: string
+}) {
   return (
     <Form action={saveOpeningHours}>
       <h2>Opening hours</h2>
+
+      <input
+        name="permanent-establishment-id"
+        type="hidden"
+        defaultValue={permanentEstablishmentId}
+      />
 
       <table className="table table-striped mb-3">
         <thead>

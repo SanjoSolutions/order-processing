@@ -4,6 +4,7 @@ import { formatPostgresDuration } from "@/duration"
 import { createClient } from "@/supabase/client/createClient"
 import type { Service } from "@/types"
 import Form from "next/form"
+import { useParams } from "next/navigation"
 import { use, useEffect, useState } from "react"
 import { addService } from "./actions"
 import { OpeningHoursSettings } from "./OpeningHoursSettings"
@@ -15,6 +16,9 @@ export function Client({
 }: {
   services: PromiseLike<{ data: Service[] | null }>
 }) {
+  const permanentEstablishmentId = useParams<{
+    permanentEstablishmentId: string
+  }>()
   const initialServices = use(servicesPromise)
   const [services, setServices] = useState<Service[]>(
     initialServices.data ?? [],
@@ -40,7 +44,9 @@ export function Client({
     <div className="flex-grow-1 p-3">
       <h1>Settings</h1>
 
-      <OpeningHoursSettings />
+      <OpeningHoursSettings
+        permanentEstablishmentId={permanentEstablishmentId}
+      />
 
       <h2>Services</h2>
 
@@ -76,7 +82,6 @@ export function Client({
             id="name"
             name="name"
             required
-            autoFocus
           />
         </div>
 

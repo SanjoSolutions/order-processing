@@ -49,24 +49,304 @@ export type Database = {
         }
         Relationships: []
       }
+      companies: {
+        Row: {
+          id: number
+          name: string
+        }
+        Insert: {
+          id?: number
+          name: string
+        }
+        Update: {
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      company_admins: {
+        Row: {
+          company_id: number
+          user_id: string
+        }
+        Insert: {
+          company_id: number
+          user_id: string
+        }
+        Update: {
+          company_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          company_id: number
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: number
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: number
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opening_hours: {
+        Row: {
+          created_at: string
+          friday_from: string | null
+          friday_to: string | null
+          id: number
+          monday_from: string | null
+          monday_to: string | null
+          permanent_establishment_id: number
+          saturday_from: string | null
+          saturday_to: string | null
+          sunday_from: string | null
+          sunday_to: string | null
+          thursday_from: string | null
+          thursday_to: string | null
+          tuesday_from: string | null
+          tuesday_to: string | null
+          wednesday_from: string | null
+          wednesday_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          friday_from?: string | null
+          friday_to?: string | null
+          id?: number
+          monday_from?: string | null
+          monday_to?: string | null
+          permanent_establishment_id: number
+          saturday_from?: string | null
+          saturday_to?: string | null
+          sunday_from?: string | null
+          sunday_to?: string | null
+          thursday_from?: string | null
+          thursday_to?: string | null
+          tuesday_from?: string | null
+          tuesday_to?: string | null
+          wednesday_from?: string | null
+          wednesday_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          friday_from?: string | null
+          friday_to?: string | null
+          id?: number
+          monday_from?: string | null
+          monday_to?: string | null
+          permanent_establishment_id?: number
+          saturday_from?: string | null
+          saturday_to?: string | null
+          sunday_from?: string | null
+          sunday_to?: string | null
+          thursday_from?: string | null
+          thursday_to?: string | null
+          tuesday_from?: string | null
+          tuesday_to?: string | null
+          wednesday_from?: string | null
+          wednesday_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_permanent_establishment_id"
+            columns: ["permanent_establishment_id"]
+            isOneToOne: false
+            referencedRelation: "permanent_establishments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanent_establishment_employees: {
+        Row: {
+          permanent_establishment_id: number
+          user_id: string
+        }
+        Insert: {
+          permanent_establishment_id: number
+          user_id: string
+        }
+        Update: {
+          permanent_establishment_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanent_establishment_employe_permanent_establishment_id_fkey"
+            columns: ["permanent_establishment_id"]
+            isOneToOne: false
+            referencedRelation: "permanent_establishments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanent_establishments: {
+        Row: {
+          city: string | null
+          company_id: number
+          country: string | null
+          id: number
+          name: string
+          postalcode: string | null
+          street_and_housenumber: string | null
+        }
+        Insert: {
+          city?: string | null
+          company_id: number
+          country?: string | null
+          id?: number
+          name: string
+          postalcode?: string | null
+          street_and_housenumber?: string | null
+        }
+        Update: {
+          city?: string | null
+          company_id?: number
+          country?: string | null
+          id?: number
+          name?: string
+          postalcode?: string | null
+          street_and_housenumber?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanent_establishments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regular_working_hours: {
+        Row: {
+          day_of_week: number
+          employee_id: string
+          end_time: string
+          id: number
+          start_time: string
+        }
+        Insert: {
+          day_of_week: number
+          employee_id: string
+          end_time: string
+          id?: number
+          start_time: string
+        }
+        Update: {
+          day_of_week?: number
+          employee_id?: string
+          end_time?: string
+          id?: number
+          start_time?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string
-          duration: string
+          duration: unknown
           id: number
           name: string
         }
         Insert: {
           created_at?: string
-          duration: string
+          duration: unknown
           id?: number
           name: string
         }
         Update: {
           created_at?: string
-          duration?: string
+          duration?: unknown
           id?: number
           name?: string
+        }
+        Relationships: []
+      }
+      sick_leaves: {
+        Row: {
+          employee_id: string
+          end_date: string
+          id: number
+          start_date: string
+        }
+        Insert: {
+          employee_id: string
+          end_date: string
+          id?: number
+          start_date: string
+        }
+        Update: {
+          employee_id?: string
+          end_date?: string
+          id?: number
+          start_date?: string
+        }
+        Relationships: []
+      }
+      vacation: {
+        Row: {
+          employee_id: string
+          end_date: string
+          id: number
+          start_date: string
+        }
+        Insert: {
+          employee_id: string
+          end_date: string
+          id?: number
+          start_date: string
+        }
+        Update: {
+          employee_id?: string
+          end_date?: string
+          id?: number
+          start_date?: string
+        }
+        Relationships: []
+      }
+      working_times: {
+        Row: {
+          employee_id: string
+          end_time: string
+          id: number
+          start_time: string
+        }
+        Insert: {
+          employee_id: string
+          end_time: string
+          id?: number
+          start_time: string
+        }
+        Update: {
+          employee_id?: string
+          end_time?: string
+          id?: number
+          start_time?: string
         }
         Relationships: []
       }
@@ -81,12 +361,24 @@ export type Database = {
         }
         Returns: Json
       }
+      companies_that_user_is_admin_of: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          company_id: number
+        }[]
+      }
       create_account: {
         Args: {
           slug?: string
           name?: string
         }
         Returns: Json
+      }
+      create_company: {
+        Args: {
+          name: string
+        }
+        Returns: number
       }
       create_invitation: {
         Args: {
@@ -617,3 +909,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
