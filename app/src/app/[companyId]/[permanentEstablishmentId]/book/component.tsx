@@ -3,9 +3,10 @@
 import { generateFormattedAddress } from "@/generateFormattedAddress"
 import { createClient } from "@/supabase/client/createClient"
 import {
-  Booking as BookingPostgres,
+  type Booking as BookingPostgres,
   type Company,
   type PermanentEstablishment,
+  type Service as ServicePostgres,
 } from "@/types"
 import {
   FormEventHandler,
@@ -24,7 +25,6 @@ import {
   TimeSpan,
   type Booking,
 } from "scheduling"
-import { services } from "./data"
 
 const supabase = createClient()
 
@@ -119,19 +119,22 @@ export function Form({
   company: companyPromise,
   permanentEstablishment: permanentEstablishmentPromise,
   bookings: initialBookingsPromise,
+  services: servicesPromise,
 }: {
-  company: PromiseLike<{ data?: Pick<Company, "name"> }>
+  company: PromiseLike<{ data: Pick<Company, "name"> | null }>
   permanentEstablishment: PromiseLike<{
-    data?: Pick<
+    data: Pick<
       PermanentEstablishment,
       "name" | "street_and_house_number" | "zip" | "city" | "country"
-    >
+    > | null
   }>
-  bookings: PromiseLike<{ data?: BookingPostgres[] }>
+  bookings: PromiseLike<{ data: BookingPostgres[] | null }>
+  services: PromiseLike<{ data: ServicePostgres[] | null }>
 }) {
   const company = use(companyPromise).data
   const permanentEstablishment = use(permanentEstablishmentPromise).data
   const initialBookings = use(initialBookingsPromise)
+  const services = use(servicesPromise).data
   const [bookings, setBookings] = useState<Booking[]>(
     initialBookings.data?.map(({ during }) => ({
       what: [],
@@ -291,7 +294,7 @@ export function Form({
             <form onSubmit={onSubmit}>
               <div className="mb-2">
                 <label htmlFor="what" className="form-label h5">
-                  Was?
+                  What?
                 </label>
                 <div className="input-group">
                   <select
@@ -314,7 +317,7 @@ export function Form({
                     id="button-addon2"
                     onClick={onAddService}
                   >
-                    Hinzufügen
+                    Add
                   </button>
                 </div>
               </div>
@@ -333,7 +336,7 @@ export function Form({
 
               <div className="mt-3 mb-3">
                 <label htmlFor="when" className="form-label h5">
-                  Wann?
+                  When?
                 </label>
                 <select
                   id="when"
@@ -356,7 +359,7 @@ export function Form({
                   className="btn btn-primary"
                   disabled={isSubmitting || what.length === 0}
                 >
-                  Buchen
+                  Book
                 </button>
               </div>
             </form>

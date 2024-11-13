@@ -8,6 +8,10 @@ export async function addService(formData: FormData) {
   const hours = parseInt(formData.get("duration-hours") as string, 10)
   const minutes = parseInt(formData.get("duration-minutes") as string, 10)
   const { error, data: service } = await supabase.from("services").insert({
+    permanent_establishment_id: parseInt(
+      formData.get("permanent-establishment-id") as string,
+      10,
+    ),
     name: formData.get("name") as string,
     duration: `${days} days ${hours} hours ${minutes} minutes`,
   })

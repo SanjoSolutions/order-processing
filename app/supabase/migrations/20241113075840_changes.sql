@@ -22,3 +22,16 @@ WITH
         companies_that_user_is_admin_of ()
     )
   );
+
+ALTER TABLE public.services
+ADD COLUMN company_id int8,
+ADD COLUMN permanent_establishment_id int8,
+ADD FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+ADD FOREIGN KEY (permanent_establishment_id) REFERENCES permanent_establishments (id) ON DELETE CASCADE,
+ADD CHECK (
+  company_id IS NOT NULL
+  OR permanent_establishment_id IS NOT NULL
+);
+
+ALTER PUBLICATION supabase_realtime
+ADD TABLE public.services;
