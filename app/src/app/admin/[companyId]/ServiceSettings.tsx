@@ -6,6 +6,7 @@ import type { Service } from "@/types"
 import Form from "next/form"
 import { use, useEffect, useState } from "react"
 import { addService } from "./ServiceSettingsActions"
+import { onDelete } from "./actions"
 
 const supabase = createClient()
 
@@ -40,6 +41,15 @@ export function ServiceSettings({
           setServices((services) => [...services, payload.new as Service])
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "services" },
+        (payload) => {
+          setServices((services) =>
+            services.filter((service) => service.id !== payload.old.id),
+          )
+        },
+      )
       .subscribe()
     return () => {
       subscription.unsubscribe()
@@ -56,14 +66,12 @@ export function ServiceSettings({
             <tr>
               <th scope="col">Name</th>
               <th scope="col">Duration</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
             {services.map((service) => (
-              <tr key={service.id}>
-                <td>{service.name}</td>
-                <td>{formatPostgresDuration(service.duration)}</td>
-              </tr>
+              <ServiceRow key={service.id} service={service} />
             ))}
           </tbody>
         </table>
@@ -161,5 +169,22 @@ export function ServiceSettings({
         </div>
       </Form>
     </>
+  )
+}
+
+function ServiceRow({ service }: { service: Service }) {
+  return (
+    <tr key={service.id}>
+      <td>{service.name}</td>
+      <td>{formatPostgresDuration(service.duration)}</td>
+      <td>
+        <form action={onDelete}>
+          <input type="hidden" name="id" value={service.id} />
+          <button type="submit" className="btn btn-outline-secondary">
+            <i className="bi bi-trash"></i>
+          </button>
+        </form>
+      </td>
+    </tr>
   )
 }

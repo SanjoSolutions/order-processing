@@ -35,3 +35,14 @@ ADD CHECK (
 
 ALTER PUBLICATION supabase_realtime
 ADD TABLE public.services;
+
+CREATE POLICY "Only admins can delete services" ON "public"."services" AS PERMISSIVE FOR DELETE TO public USING (
+  company_id IN (
+    SELECT
+      companies_that_user_is_admin_of ()
+  )
+  OR permanent_establishment_id IN (
+    SELECT
+      permanent_establishments_of_companies_that_user_is_admin_of ()
+  )
+);

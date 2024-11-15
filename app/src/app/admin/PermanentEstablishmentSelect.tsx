@@ -22,7 +22,7 @@ export function PermanentEstablishmentSelect({
 
   const onChange: ChangeEventHandler<HTMLSelectElement> = useCallback(
     function onChange(event) {
-      redirect(`/admin/${companyId}/${event.target.value}`)
+      redirect(`/admin/${companyId}/${event.target.value}/settings`)
     },
     [],
   )
