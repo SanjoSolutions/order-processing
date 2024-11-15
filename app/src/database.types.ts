@@ -265,24 +265,45 @@ export type Database = {
       }
       services: {
         Row: {
+          company_id: number | null
           created_at: string
           duration: string
           id: number
           name: string
+          permanent_establishment_id: number | null
         }
         Insert: {
+          company_id?: number | null
           created_at?: string
           duration: string
           id?: number
           name: string
+          permanent_establishment_id?: number | null
         }
         Update: {
+          company_id?: number | null
           created_at?: string
           duration?: string
           id?: number
           name?: string
+          permanent_establishment_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_permanent_establishment_id_fkey"
+            columns: ["permanent_establishment_id"]
+            isOneToOne: false
+            referencedRelation: "permanent_establishments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sick_leaves: {
         Row: {

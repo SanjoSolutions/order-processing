@@ -12,6 +12,7 @@ const supabase = createClient()
 
 interface BaseProps {
   services: PromiseLike<{ data: Service[] | null }>
+  companyServices?: PromiseLike<{ data: Service[] | null }>
 }
 
 interface PropsWithCompanyId extends BaseProps {
@@ -22,22 +23,40 @@ interface PropsWithPermanentEstablishmentId extends BaseProps {
   permanentEstablishmentId: string
 }
 
+enum Type {
+  Unhandled = 0,
+  Company = 1,
+  PermanentEstablishment = 2,
+}
+
 export function ServiceSettings({
   services: servicesPromise,
+  companyServices: companyServicesPromise,
   ...props
 }: PropsWithCompanyId | PropsWithPermanentEstablishmentId) {
+  const type =
+    "companyId" in props
+      ? Type.Company
+      : "permanentEstablishmentId" in props
+        ? Type.PermanentEstablishment
+        : Type.Unhandled
   const initialServices = use(servicesPromise)
   const [services, setServices] = useState<Service[]>(
     initialServices.data ?? [],
   )
 
+  const initialCompanyServices = companyServicesPromise
+    ? use(companyServicesPromise)
+    : null
+  const [companyServices, setCompanyServices] = useState<Service[] | null>(
+    initialCompanyServices ? (initialCompanyServices.data ?? []) : null,
+  )
+
   useEffect(
     function listenToServiceInserts() {
       let filter
-      if ("companyId" in props) {
-        filter = `company_id=eq.${props.companyId}`
-      } else if ("permanentEstablishmentId" in props) {
-        filter = `permanent_establishment_id=eq.${props.permanentEstablishmentId}`
+      if (type === Type.Company) {
+        filter = `company_id=eq.${(props as any).companyId}`
       } else {
         filter = undefined
       }
@@ -48,15 +67,28 @@ export function ServiceSettings({
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "services", filter },
           (payload) => {
-            setServices((services) => [...services, payload.new as Service])
+            const service = payload.new as Service
+            if (type === Type.Company) {
+              setServices((services) => [...services, service])
+            } else if (type === Type.PermanentEstablishment) {
+              if (service.company_id) {
+                setCompanyServices((services) => [...(services ?? []), service])
+              } else if (service.permanent_establishment_id) {
+                setServices((services) => [...services, service])
+              }
+            }
           },
         )
         .on(
           "postgres_changes",
           { event: "DELETE", schema: "public", table: "services", filter },
           (payload) => {
+            const service = payload.old as Service
             setServices((services) =>
-              services.filter((service) => service.id !== payload.old.id),
+              services.filter(({ id }) => id !== service.id),
+            )
+            setCompanyServices((services) =>
+              services ? services.filter(({ id }) => id !== service.id) : null,
             )
           },
         )
@@ -72,21 +104,52 @@ export function ServiceSettings({
     <>
       <h2>Services</h2>
 
+      {"permanentEstablishmentId" in props &&
+        companyServices &&
+        companyServices.length >= 1 && (
+          <>
+            <h3>Company-wide</h3>
+
+            <table className="table table-striped mb-3">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                {companyServices.map((service) => (
+                  <tr key={service.id}>
+                    <td>{service.name}</td>
+                    <td>{formatPostgresDuration(service.duration)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
       {services && (
-        <table className="table table-striped mb-3">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Duration</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {services.map((service) => (
-              <ServiceRow key={service.id} service={service} />
-            ))}
-          </tbody>
-        </table>
+        <>
+          {"permanentEstablishmentId" in props &&
+            companyServices &&
+            companyServices.length >= 1 && <h3>At permanent establishment</h3>}
+
+          <table className="table table-striped mb-3">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service) => (
+                <ServiceRow key={service.id} service={service} />
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
 
       <h3>Add new service</h3>
