@@ -31,30 +31,42 @@ export function ServiceSettings({
     initialServices.data ?? [],
   )
 
-  useEffect(function listenToServiceInserts() {
-    const subscription = supabase
-      .channel("room1")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "services" },
-        (payload) => {
-          setServices((services) => [...services, payload.new as Service])
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "services" },
-        (payload) => {
-          setServices((services) =>
-            services.filter((service) => service.id !== payload.old.id),
-          )
-        },
-      )
-      .subscribe()
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
+  useEffect(
+    function listenToServiceInserts() {
+      let filter
+      if ("companyId" in props) {
+        filter = `company_id=eq.${props.companyId}`
+      } else if ("permanentEstablishmentId" in props) {
+        filter = `permanent_establishment_id=eq.${props.permanentEstablishmentId}`
+      } else {
+        filter = undefined
+      }
+
+      const subscription = supabase
+        .channel("room1")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "services", filter },
+          (payload) => {
+            setServices((services) => [...services, payload.new as Service])
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "DELETE", schema: "public", table: "services", filter },
+          (payload) => {
+            setServices((services) =>
+              services.filter((service) => service.id !== payload.old.id),
+            )
+          },
+        )
+        .subscribe()
+      return () => {
+        subscription.unsubscribe()
+      }
+    },
+    [props],
+  )
 
   return (
     <>

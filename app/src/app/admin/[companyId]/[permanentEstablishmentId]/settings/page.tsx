@@ -19,7 +19,10 @@ export default async function ({
     .select()
     .eq("permanent_establishment_id", permanentEstablishmentId)
     .single()
-  const services = supabase.from("services").select()
+  const services = supabase
+    .from("services")
+    .select()
+    .eq("permanent_establishment_id", permanentEstablishmentId)
 
   return (
     <Client
