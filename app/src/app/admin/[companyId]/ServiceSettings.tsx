@@ -255,7 +255,11 @@ function ServiceRow({ service }: { service: Service }) {
       <td>
         <form action={onDelete}>
           <input type="hidden" name="id" value={service.id} />
-          <button type="submit" className="btn btn-outline-secondary">
+          <button
+            type="submit"
+            className="btn btn-outline-secondary"
+            title="Delete"
+          >
             <i className="bi bi-trash"></i>
           </button>
         </form>
