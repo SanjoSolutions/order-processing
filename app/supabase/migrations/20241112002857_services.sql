@@ -9,12 +9,10 @@ CREATE TABLE
 
 ALTER TABLE "public"."services" ENABLE ROW LEVEL SECURITY;
 
--- TODO: Tighten.
 CREATE POLICY "Enable insert for authenticated users only" ON "public"."services" AS PERMISSIVE FOR INSERT TO authenticated
 WITH
   CHECK (TRUE);
 
--- TODO: Tighten.
 CREATE POLICY "Enable read access for all users" ON "public"."services" AS PERMISSIVE FOR
 SELECT
   TO public USING (TRUE);
